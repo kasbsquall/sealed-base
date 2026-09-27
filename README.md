@@ -111,7 +111,7 @@ npm run deploy:base-sepolia
 | `ReputationGate.sol` with explicit on-chain admission policy over trusted reviewers | done, interface checked against live Base Sepolia |
 | Privy agent wallets under a contract-scoped mandate | done, typechecked |
 | Deployment to Base Sepolia | in progress |
-| Negotiator agent (Qwen 3 Max) | in progress |
+| Negotiator agent (Claude Opus 5) | in progress |
 | Dual-scenario frontend demo | in progress |
 
 ## Built before and during the hackathon
