@@ -32,9 +32,38 @@ The Validation Registry is not deployed on Base. Sealed does not depend on it.
 
 ## Sealed deployments
 
-Filled in as they happen.
+Base Sepolia, deployed 2026-09-27. Source verified on Sourcify with an exact
+creation and runtime match (`node scripts/verify-sourcify.cjs` reproduces it).
 
-| Contract | Network | Address |
-|---|---|---|
-| ReputationGate | Base Sepolia | pending |
-| SealedNegotiation | Base Sepolia | pending |
+| Contract | Address |
+|---|---|
+| ReputationGate | [`0xDC237A8ade5dd125A18146f1b5943eE4E975a407`](https://sepolia.basescan.org/address/0xDC237A8ade5dd125A18146f1b5943eE4E975a407) |
+| SealedNegotiation | [`0x0C0E12C9C77FAcDa9302514A818DF232346e773A`](https://sepolia.basescan.org/address/0x0C0E12C9C77FAcDa9302514A818DF232346e773A) |
+
+### Demo agents (seeded)
+
+Registered in the canonical ERC-8004 Identity Registry on Base Sepolia by
+`scripts/seed-demo.ts`. Their reputation comes from three demo reviewers created
+by the same script, so it proves the integration with the real registries, not
+real-world trust.
+
+| Agent | ERC-8004 agentId | Feedback from trusted reviewers | Clears the demo policy |
+|---|---|---|---|
+| buyer | 9341 | 6 entries, average 4.70 | yes |
+| seller | 9342 | 6 entries, average 4.38 | yes |
+| newcomer | 9343 | 1 entry, 5.00 | no, too little history |
+
+Demo policy: at least 5 entries from the three named reviewers, averaging at least 4.00.
+Full record, including every feedback transaction: [`deployments/baseSepolia.json`](../deployments/baseSepolia.json).
+
+### First live negotiation (scripted, no LLM)
+
+`scripts/smoke-negotiation.ts`, negotiation #1. Buyer ceiling 42.50, seller floor 39.80, prices in US cents.
+
+| Step | Transaction |
+|---|---|
+| Gate refuses the newcomer | `NotAdmitted` on a static call, no transaction |
+| Open negotiation | [`0xc1373cc4…`](https://sepolia.basescan.org/tx/0xc1373cc4093af99833029ef31c225b7a39ef4d0c3e4b023fd7b47f6a353e9b4e) |
+| Buyer commits (offer not in calldata) | [`0xa62210cd…`](https://sepolia.basescan.org/tx/0xa62210cd8ab8d1288f80b7df487de2a0bf3f347ca7e9eb9123e01e6d75a043dc) |
+| Seller commits (offer not in calldata) | [`0x1d6f6ad1…`](https://sepolia.basescan.org/tx/0x1d6f6ad16a7b9c1272ce360949d0e702c2ba1c28435cfeff8c8ddbb3e3ae49b3) |
+| Atomic settlement at 41.15 | [`0x3c8a95a1…`](https://sepolia.basescan.org/tx/0x3c8a95a18eb705f34a22e76be6c813b545ff0602ebd3c99e695d22964cbe35c9) |

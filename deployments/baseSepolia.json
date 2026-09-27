@@ -1,0 +1,101 @@
+{
+  "network": "baseSepolia",
+  "chainId": 84532,
+  "registries": {
+    "identity": "0x8004A818BFB912233c491871b3d84c89A494BD9e",
+    "reputation": "0x8004B663056A597Dffe9eCcC1965A193B7388713"
+  },
+  "seeded": true,
+  "agents": {
+    "buyer": {
+      "agentId": "9341",
+      "wallet": "0x9DE7DeEcCfFf2CA1958E48C3038b85e7130Bd240",
+      "registerTx": "0x22c0cb6c0342e9e6f0b741de9c80e68addec59528501148e25bc4841bc061eb1"
+    },
+    "seller": {
+      "agentId": "9342",
+      "wallet": "0xB69841BBe445D059968f4949E5312B182eFF4726",
+      "registerTx": "0x5eb161df6e8598225db3be7012db02073b6895b6aa9758dd6228271d3e30efb6"
+    },
+    "newcomer": {
+      "agentId": "9343",
+      "wallet": "0x570D21e3348c232930078CfDFc69BD5C30125edC",
+      "registerTx": "0x3024b4c59bfc26f51486d457bf54ad4f630120746731c8018039a7111ab3c5d6"
+    }
+  },
+  "feedback": {
+    "buyer": [
+      "0xce1f96708869c03bf988ce2b543ab6a7eb6562b02a66023936a721f138154689",
+      "0x50c1136e628b02f092c1c08b1f601717a45e3cc33223f05528b6d6bf90f6c00f",
+      "0x0d5cd4ceb9e3d3523f05567dbc43584416e2443865e2b9777d8cf2a59b096b15",
+      "0x38f7527d432fe9282f15d50c15c0c43f149bb181560b9aa554c31e36e7af3f22",
+      "0x68feef17014b83010e5f03002613e0664b5bd04e3ee2b71ec3b7f342e5f71cec",
+      "0xdd4eed336b108c5c510ed29f339d7d9e939b9c44a33f6e104109c12d56e3e7ed"
+    ],
+    "seller": [
+      "0x66eb005cfac1a9633e25a7fa11d105e0a057252bca48111be1e7ca0199dbb454",
+      "0xa763c386a3629f522666c73a93acc5fa796ce1b73c09e2e6545593633a03a865",
+      "0x9f88adead7f8ad97abb63d5604e64743180da0c41101de3a4ca53956067ba0f9",
+      "0xb3bf08a1bceec7fd59fe72d4147f3eb05e4d3b4a654169bfdc103d91b6035d92",
+      "0xcef03c788a0d2611d7e1ef7697e2b49237d5cc72ce9dd5906e5619fe1356a8af",
+      "0xeb59a6bcfff1a0401b7b5b0f89f4fcdd505e8feb6b1b0be5b1e09d6f9f633733"
+    ],
+    "newcomer": [
+      "0x52a3ffb9451d18c0bd640ec18b570c2aef172d267a0e598fe460391726a77766"
+    ]
+  },
+  "transactions": {
+    "deployReputationGate": "0x38d490a9d1ee16b8ea9ce9fdd204ac01c75f975bf767821efb001e316eec6373",
+    "deploySealedNegotiation": "0x00dc42641e3c38e9b2c6f15d538ab9fc62e49d91407667710cb7e9f7a76634ed"
+  },
+  "contracts": {
+    "ReputationGate": "0xDC237A8ade5dd125A18146f1b5943eE4E975a407",
+    "SealedNegotiation": "0x0C0E12C9C77FAcDa9302514A818DF232346e773A"
+  },
+  "addresses": {
+    "buyer": "0x9DE7DeEcCfFf2CA1958E48C3038b85e7130Bd240",
+    "seller": "0xB69841BBe445D059968f4949E5312B182eFF4726",
+    "newcomer": "0x570D21e3348c232930078CfDFc69BD5C30125edC",
+    "reviewerA": "0xDdA3e444F80e0083b9f632Be41c999590d0Ce850",
+    "reviewerB": "0xF95c0B349bFBf9F1CDEecdB01ddBE6Dd51493F37",
+    "reviewerC": "0x3D68EEd8AAC3fc68306bEe6B893D6588F4BF7804"
+  },
+  "policy": {
+    "reviewers": [
+      "0xDdA3e444F80e0083b9f632Be41c999590d0Ce850",
+      "0xF95c0B349bFBf9F1CDEecdB01ddBE6Dd51493F37",
+      "0x3D68EEd8AAC3fc68306bEe6B893D6588F4BF7804"
+    ],
+    "minFeedbackCount": 5,
+    "minAverageValue": 400,
+    "decimals": 2,
+    "tag1": ""
+  },
+  "admission": {
+    "buyer": {
+      "clears": true,
+      "isAgentWallet": true
+    },
+    "seller": {
+      "clears": true,
+      "isAgentWallet": true
+    },
+    "newcomer": {
+      "clears": false,
+      "isAgentWallet": true
+    }
+  },
+  "smoke": {
+    "note": "Scripted smoke test, no LLM. Offers chosen by the script.",
+    "negotiationId": "1",
+    "terms": "Demo: USD cents per unit, 1,000 units, net 30",
+    "newcomerRefused": true,
+    "createTx": "0xc1373cc4093af99833029ef31c225b7a39ef4d0c3e4b023fd7b47f6a353e9b4e",
+    "commitTxs": {
+      "buyer": "0xa62210cd8ab8d1288f80b7df487de2a0bf3f347ca7e9eb9123e01e6d75a043dc",
+      "seller": "0x1d6f6ad16a7b9c1272ce360949d0e702c2ba1c28435cfeff8c8ddbb3e3ae49b3"
+    },
+    "settleTx": "0x3c8a95a18eb705f34a22e76be6c813b545ff0602ebd3c99e695d22964cbe35c9",
+    "settledPrice": "4115"
+  }
+}

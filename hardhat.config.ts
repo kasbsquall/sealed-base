@@ -39,6 +39,8 @@ const config: HardhatUserConfig = {
   etherscan: {
     apiKey: process.env.BASESCAN_API_KEY ?? "",
   },
+  // Sourcify needs no API key, so anyone can reproduce the verification.
+  sourcify: { enabled: true },
 };
 
 export default config;

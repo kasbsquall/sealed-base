@@ -2,6 +2,7 @@ import fs from "fs";
 import { ethers, network } from "hardhat";
 import { Wallet, type ContractTransactionResponse } from "ethers";
 import { REGISTRIES } from "./registries";
+import { fees } from "./fees";
 
 /**
  * Deploys Sealed and seeds the demo on a live network, against the canonical
@@ -65,18 +66,6 @@ function loadWallets(): Record<Role, string> {
   const keys = Object.fromEntries(ROLES.map((r) => [r, Wallet.createRandom().privateKey])) as Record<Role, string>;
   fs.writeFileSync(WALLETS_FILE, JSON.stringify(keys, null, 2), { mode: 0o600 });
   return keys;
-}
-
-/**
- * Explicit EIP-1559 fees from the latest block. Base charges ~0.001 gwei of tip;
- * ethers' fallback tip is 1 gwei, which would make every upfront cost 100x the
- * real one and strand the small demo wallets.
- */
-const TIP = ethers.parseUnits("0.001", "gwei");
-async function fees() {
-  const block = await ethers.provider.getBlock("latest");
-  const base = block?.baseFeePerGas ?? ethers.parseUnits("0.01", "gwei");
-  return { maxPriorityFeePerGas: TIP, maxFeePerGas: base * 2n + TIP };
 }
 
 async function send(label: string, tx: Promise<ContractTransactionResponse>) {
