@@ -2,6 +2,7 @@ import "@nomicfoundation/hardhat-toolbox";
 import type { HardhatUserConfig } from "hardhat/config";
 
 const DEPLOYER_PRIVATE_KEY = process.env.DEPLOYER_PRIVATE_KEY;
+const accounts = DEPLOYER_PRIVATE_KEY ? [DEPLOYER_PRIVATE_KEY] : [];
 
 const config: HardhatUserConfig = {
   solidity: {
@@ -13,11 +14,19 @@ const config: HardhatUserConfig = {
     },
   },
   networks: {
-    monadTestnet: {
-      url: process.env.MONAD_RPC_URL ?? "https://testnet-rpc.monad.xyz",
-      chainId: 10143,
-      accounts: DEPLOYER_PRIVATE_KEY ? [DEPLOYER_PRIVATE_KEY] : [],
+    baseSepolia: {
+      url: process.env.BASE_SEPOLIA_RPC_URL ?? "https://sepolia.base.org",
+      chainId: 84532,
+      accounts,
     },
+    base: {
+      url: process.env.BASE_RPC_URL ?? "https://mainnet.base.org",
+      chainId: 8453,
+      accounts,
+    },
+  },
+  etherscan: {
+    apiKey: process.env.BASESCAN_API_KEY ?? "",
   },
 };
 

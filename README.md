@@ -2,13 +2,13 @@
 
 **Two AI agents negotiate a deal without either one seeing the other's position first.**
 
-Built on Monad · ERC-8004 verified identity and reputation · Monad Metropolis, Trust, Identity & AI Infrastructure track.
+Built on Base · ERC-8004 verified identity and reputation · Colosseum Crypto World's Fair, Base track.
 
 ---
 
 ## The gap
 
-ERC-8004 shipped to Ethereum mainnet in January 2026. In three months of testnet it collected more than 10,000 registered agents and 20,000 feedback entries, and a whole ecosystem grew on top of it: AgentPass, Helixa, Chitin, a full TRON port. Every one of them answers the same question.
+ERC-8004 shipped to Ethereum mainnet in January 2026, and its Identity and Reputation registries now live at the same addresses on Base and on more than twenty other chains. Everything built on it answers the same question.
 
 > How much can I trust this agent before I deal with it?
 
@@ -22,7 +22,7 @@ Sealed is that missing layer.
 
 ## What it does
 
-Two agents, each with an ERC-8004 identity and reputation on Monad, reach an agreement through a contract that never learns either position until both are locked, and never learns either position at all if the deal does not happen.
+Two agents, each with an ERC-8004 identity and reputation on Base, reach an agreement through a contract that never learns either position until both are locked, and never learns either position at all if the deal does not happen.
 
 1. **Admission.** `ReputationGate` checks both agents against an explicit, on-chain policy read from the canonical ERC-8004 Reputation Registry. It answers one bit: does this agent clear the bar. It never exposes the agent's history to its counterparty.
 2. **Commitment.** Each agent submits a salted, domain-separated hash of its position. Counter-offers are new commitments, and the same number committed twice produces two unrelated hashes, so an observer watching a sequence of updates cannot tell whether an agent moved or held.
@@ -50,9 +50,9 @@ Timing metadata is public. The mempool shows that an address committed and when.
 ## Architecture
 
 ```
-ERC-8004 canonical registries on Monad        (read only, not deployed by us)
-  IdentityRegistry      0x8004A818BFB912233c491871b3d84c89A494BD9e  (testnet)
-  ReputationRegistry    0x8004B663056A597Dffe9eCcC1965A193B7388713  (testnet)
+ERC-8004 canonical registries on Base        (read only, not deployed by us)
+  IdentityRegistry      0x8004A818BFB912233c491871b3d84c89A494BD9e  (Base Sepolia)
+  ReputationRegistry    0x8004B663056A597Dffe9eCcC1965A193B7388713  (Base Sepolia)
         |
         v
   ReputationGate.sol      admission policy, one bit out, history stays private
@@ -73,7 +73,7 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/PRIVY.md](docs/PRIVY.md)
 
 ### The agent's mandate is enforced by infrastructure, not by good behaviour
 
-A negotiator signs without a human in the loop, which makes it a drainable key with a language interface attached. So Sealed bounds what the key can do rather than trusting the agent. Its Privy policy allows transactions only to the Sealed contract, on Monad, carrying zero value, and allows `eth_signTypedData_v4` only when the EIP-712 domain's `verifyingContract` is that same Sealed address. Everything else is denied by default.
+A negotiator signs without a human in the loop, which makes it a drainable key with a language interface attached. So Sealed bounds what the key can do rather than trusting the agent. Its Privy policy allows transactions only to the Sealed contract, on Base, carrying zero value, and allows `eth_signTypedData_v4` only when the EIP-712 domain's `verifyingContract` is that same Sealed address. Everything else is denied by default.
 
 That second rule is the one that usually gets forgotten. An agent able to sign arbitrary typed data can be talked into signing a Permit2 approval or a Seaport order, and no transaction allowlist stops it, because the damage happens off-chain and lands later. Pinning the domain closes it. A negotiator that is jailbroken, prompt-poisoned, or fully compromised can still only negotiate badly.
 
@@ -94,11 +94,11 @@ The test suite is where the privacy claims are proved rather than asserted. Amon
 - an expired negotiation puts neither position on-chain
 - the agent's own off-chain commitment encoder matches the contract exactly, across the full uint256 range
 
-Deploy to Monad testnet (chain id 10143):
+Deploy to Base Sepolia (chain id 84532):
 
 ```bash
-cp .env.example .env   # fill in DEPLOYER_PRIVATE_KEY
-npm run deploy:monad
+cp .env.example .env   # fill in DEPLOYER_PRIVATE_KEY with a fresh faucet-funded wallet
+npm run deploy:base-sepolia
 ```
 
 ## Status
@@ -109,9 +109,13 @@ npm run deploy:monad
 | `SealedNegotiation.sol` with atomic EIP-712 settlement | done, 24 tests passing |
 | `ReputationGate.sol` with explicit on-chain admission policy | done |
 | Privy agent wallets under a contract-scoped mandate | done, typechecked |
-| Deployment to Monad testnet | in progress |
+| Deployment to Base Sepolia | in progress |
 | Negotiator agent (Qwen 3 Max) | in progress |
 | Dual-scenario frontend demo | in progress |
+
+## Built before and during the hackathon
+
+Sealed started as a prototype on Monad, written for a different hackathon. The first two commits in this repository (2026-09-17) are that prototype: the core contracts, the test suite and the Privy mandate. Everything after them is the Base version built for Colosseum Crypto World's Fair. The history is kept on purpose so anyone can check with `git log` which work came from the Monad prototype.
 
 ## License
 

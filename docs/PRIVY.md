@@ -20,12 +20,12 @@ The policy ([`agents/privy/mandate.ts`](../agents/privy/mandate.ts)) is two ALLO
 rules, and Privy denies everything no rule matches:
 
 **Transactions.** Destination must equal the deployed `SealedNegotiation`
-address, chain id must be Monad, and attached value must be zero. Nothing else
+address, chain id must be Base, and attached value must be zero. Nothing else
 is reachable. The agent cannot transfer a token, cannot approve a spender,
 cannot call a router, cannot bridge.
 
 **Signatures.** `eth_signTypedData_v4` is allowed only when the EIP-712 domain's
-`verifyingContract` is that same Sealed address and `chainId` is Monad. This is
+`verifyingContract` is that same Sealed address and `chainId` is Base. This is
 the rule that matters most and it is the one people forget. An agent that can
 sign arbitrary typed data can be walked into signing a Permit2 approval or a
 Seaport order by a counterparty that sounds convincing, and no amount of

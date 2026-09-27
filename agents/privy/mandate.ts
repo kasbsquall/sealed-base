@@ -10,7 +10,7 @@ import { PrivyClient } from "@privy-io/node";
  * constrained at the infrastructure level, not by the agent's own good
  * behaviour:
  *
- *   - it can only send transactions to the Sealed contract, on Monad, and
+ *   - it can only send transactions to the Sealed contract, on Base, and
  *   - it can only sign EIP-712 payloads whose domain is that same contract on
  *     that same chain.
  *
@@ -27,7 +27,7 @@ import { PrivyClient } from "@privy-io/node";
 export interface MandateConfig {
   /** Deployed SealedNegotiation address. */
   sealedAddress: string;
-  /** Monad chain id. 10143 for testnet. */
+  /** Base chain id. 84532 for Base Sepolia, 8453 for mainnet. */
   chainId: number;
   /** Key quorum that owns the policy, from the Privy dashboard. */
   ownerId: string;

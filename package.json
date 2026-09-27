@@ -2,12 +2,12 @@
   "name": "sealed",
   "version": "0.1.0",
   "private": true,
-  "description": "Sealed positions for agent-to-agent negotiation on Monad, on top of ERC-8004.",
+  "description": "Sealed positions for agent-to-agent negotiation on Base, on top of ERC-8004.",
   "license": "MIT",
   "scripts": {
     "build": "hardhat compile",
     "test": "hardhat test",
-    "deploy:monad": "hardhat run scripts/deploy.ts --network monadTestnet"
+    "deploy:base-sepolia": "hardhat run scripts/deploy.ts --network baseSepolia"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",

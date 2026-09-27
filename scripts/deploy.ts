@@ -2,11 +2,11 @@ import { ethers, network } from "hardhat";
 
 /** Canonical ERC-8004 singletons. See docs/ADDRESSES.md. */
 const REGISTRIES: Record<number, { identity: string; reputation: string }> = {
-  10143: {
+  84532: {
     identity: "0x8004A818BFB912233c491871b3d84c89A494BD9e",
     reputation: "0x8004B663056A597Dffe9eCcC1965A193B7388713",
   },
-  143: {
+  8453: {
     identity: "0x8004A169FB4a3325136EB29fA0ceB6D2e539a432",
     reputation: "0x8004BAa17C55a88189AE136b182e5fdA19dE9b63",
   },
@@ -22,7 +22,7 @@ async function main() {
   const [deployer] = await ethers.getSigners();
   console.log(`Network   ${network.name} (${chainId})`);
   console.log(`Deployer  ${deployer.address}`);
-  console.log(`Balance   ${ethers.formatEther(await ethers.provider.getBalance(deployer.address))} MON`);
+  console.log(`Balance   ${ethers.formatEther(await ethers.provider.getBalance(deployer.address))} ETH`);
 
   const gate = await (
     await ethers.getContractFactory("ReputationGate")

@@ -26,7 +26,7 @@ async function main() {
     appSecret: process.env.PRIVY_APP_SECRET!,
   });
 
-  const chainId = Number(process.env.MONAD_CHAIN_ID ?? 10143);
+  const chainId = Number(process.env.SEALED_CHAIN_ID ?? 84532);
   const ownerId = process.env.PRIVY_KEY_QUORUM_ID!;
 
   const policy = await createSealedMandate(privy, { sealedAddress, chainId, ownerId });

@@ -22,7 +22,7 @@ export interface AgentWalletConfig {
   walletId: string;
   /** The wallet's EVM address, which is what the contract checks. */
   address: string;
-  /** Deployed SealedNegotiation address and Monad chain id. */
+  /** Deployed SealedNegotiation address and Base chain id. */
   domain: SealedDomain;
   /** Base64 PKCS8 authorization key that lets this backend act for the wallet. */
   authorizationPrivateKey: string;

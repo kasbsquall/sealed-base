@@ -2,7 +2,7 @@
 pragma solidity ^0.8.24;
 
 /// @notice Test doubles for the canonical ERC-8004 registries.
-/// @dev Used only by the test suite and by local development. On Monad, Sealed
+/// @dev Used only by the test suite and by local development. On Base, Sealed
 ///      points at the real singletons listed in docs/ADDRESSES.md.
 contract MockIdentityRegistry {
     mapping(uint256 => address) public owners;

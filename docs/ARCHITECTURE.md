@@ -4,7 +4,7 @@
 
 ### 1. We read the canonical ERC-8004 registries, we do not redeploy them
 
-The registries already exist on Monad at deterministic CREATE2 addresses, audited.
+The registries already exist on Base at deterministic CREATE2 addresses, audited.
 Deploying our own copies would produce a demo that integrates with nothing. Sealed
 reads the real singletons through two minimal interfaces
 ([`IIdentityRegistry`](../contracts/interfaces/IIdentityRegistry.sol),
