@@ -8,12 +8,14 @@
     "build": "hardhat compile",
     "test": "hardhat test",
     "deploy:base-sepolia": "hardhat run scripts/deploy.ts --network baseSepolia",
-    "check:registries": "hardhat run scripts/check-registries.ts --network baseSepolia"
+    "check:registries": "hardhat run scripts/check-registries.ts --network baseSepolia",
+    "seed:base-sepolia": "hardhat run scripts/seed-demo.ts --network baseSepolia"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@openzeppelin/contracts": "5.4.0",
     "@openzeppelin/contracts-upgradeable": "5.4.0",
+    "dotenv": "^16.6.1",
     "hardhat": "^2.22.17",
     "typescript": "^5.6.3"
   },

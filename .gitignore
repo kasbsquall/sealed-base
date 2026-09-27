@@ -7,3 +7,6 @@ typechain-types/
 .DS_Store
 coverage/
 coverage.json
+
+# Local demo keys (buyer, seller, reviewers). Never commit.
+.demo-wallets.json
