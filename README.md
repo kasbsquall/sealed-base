@@ -81,7 +81,8 @@ That second rule is the one that usually gets forgotten. An agent able to sign a
 
 ```bash
 npm install
-npx hardhat test
+npx hardhat test            # runs against the real ERC-8004 registry code
+npm run check:registries    # calls the live registries on Base Sepolia
 ```
 
 The test suite is where the privacy claims are proved rather than asserted. Among the cases:
@@ -106,8 +107,8 @@ npm run deploy:base-sepolia
 | | |
 |---|---|
 | ERC-8004 integration researched and addresses confirmed | done |
-| `SealedNegotiation.sol` with atomic EIP-712 settlement | done, 24 tests passing |
-| `ReputationGate.sol` with explicit on-chain admission policy | done |
+| `SealedNegotiation.sol` with atomic EIP-712 settlement | done, 27 tests passing against the real ERC-8004 registry code |
+| `ReputationGate.sol` with explicit on-chain admission policy over trusted reviewers | done, interface checked against live Base Sepolia |
 | Privy agent wallets under a contract-scoped mandate | done, typechecked |
 | Deployment to Base Sepolia | in progress |
 | Negotiator agent (Qwen 3 Max) | in progress |

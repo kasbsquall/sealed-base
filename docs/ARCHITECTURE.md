@@ -20,6 +20,11 @@ is ours to define and to defend.
 
 [`ReputationGate`](../contracts/ReputationGate.sol) takes a `Policy` struct:
 
+- `reviewers`: the addresses whose feedback counts. ERC-8004 refuses a summary over
+  "everyone" (`getSummary` reverts with `clientAddresses required`), and the gate
+  agrees with that: reputation from any address at all is Sybil-farmable, so a
+  policy has to name whose judgement it trusts. Fifty perfect scores from an
+  address outside the set change nothing, and there is a test proving it.
 - `minFeedbackCount`: how much history is enough. Guards against a fresh address with
   one flattering review.
 - `minAverageValue` and `decimals`: the bar, in the registry's own fixed point.
@@ -30,9 +35,14 @@ Revoked feedback never counts. The policy is attached to a negotiation at creati
 and is readable by anyone, including the counterparty. Hiding this logic in an
 off-chain service would defeat the purpose of an on-chain trust layer.
 
-The gate also verifies via `agentWallet` metadata that the signing address really
-belongs to the agent id being quoted, so nobody can borrow another agent's
-reputation.
+The gate also checks `getAgentWallet(agentId)` on the Identity Registry, so the
+signing address has to be the agent's registered wallet and nobody can borrow
+another agent's reputation by quoting its id.
+
+The test suite runs against the real ERC-8004 registry code, vendored unmodified in
+[`contracts/vendor/erc8004`](../contracts/vendor/erc8004), deployed behind the same
+proxy pattern as on Base. `npm run check:registries` calls the live Base Sepolia
+registries through Sealed's own interfaces and fails if they ever drift.
 
 **Known limitation, stated openly:** a policy with a high `minFeedbackCount`
 reinforces the reputation-concentration risk already identified in the ERC-8004
