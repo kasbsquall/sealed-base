@@ -1,25 +1,27 @@
 /*
- * Sealed judge page. A notarial register: warm paper, dark ink, and one
- * accent, Base blue, reserved for what the chain recorded.
+ * Sealed judge page, identity "Cruce": chalk, carbon and steel, Swiss and
+ * precise. One accent, signal orange, marks only the point where prices cross.
  */
 
 :root {
-  --paper: oklch(96.4% 0.013 84);
-  --paper-inset: oklch(93.6% 0.015 82);
-  --paper-raised: oklch(98.2% 0.008 86);
-  --ink: oklch(21.5% 0.018 60);
-  --ink-2: oklch(39% 0.016 62);
-  --ink-3: oklch(50% 0.014 66);
-  --rule: oklch(21.5% 0.018 60 / 0.09);
-  --rule-strong: oklch(21.5% 0.018 60 / 0.14);
-  --chain: oklch(49% 0.25 264);
-  --chain-soft: oklch(49% 0.25 264 / 0.08);
-  --redaction: oklch(24% 0.02 62);
-  --on-redaction: oklch(88% 0.012 84);
-  --shadow: oklch(40% 0.03 70 / 0.1);
+  /* Tiza, Carbón, Acero, Señal. See docs/brand/README.md. */
+  --paper: #f2f2ee;
+  --paper-inset: #e7e7e1;
+  --paper-raised: #fbfbf8;
+  --ink: #151617;
+  --ink-2: #45484c;
+  --ink-3: #686c71;
+  --steel: #8b9096;
+  --rule: rgba(21, 22, 23, 0.1);
+  --rule-strong: rgba(21, 22, 23, 0.16);
+  --chain: #151617;
+  --accent: #ff4f1a;
+  --redaction: #151617;
+  --on-redaction: #b9bcc0;
+  --shadow: rgba(21, 22, 23, 0.08);
 
-  --font-serif: var(--font-newsreader), "Iowan Old Style", Georgia, serif;
-  --font-mono: var(--font-jetbrains), ui-monospace, "SFMono-Regular", monospace;
+  --font-sans: var(--font-archivo), "Helvetica Neue", sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, "SFMono-Regular", monospace;
 
   --text-xs: 0.75rem;
   --text-sm: 0.875rem;
@@ -27,14 +29,14 @@
   --text-lg: 1.3125rem;
   --text-xl: 1.625rem;
   --text-2xl: clamp(1.75rem, 1.2rem + 1.6vw, 2.375rem);
-  --text-display: clamp(2.5rem, 1.1rem + 5.2vw, 4.75rem);
+  --text-display: clamp(2.125rem, 1rem + 3.9vw, 3.875rem);
   --text-hero: clamp(4.25rem, 2rem + 9vw, 8.5rem);
 
   --gutter: clamp(1rem, 0.4rem + 3vw, 2.5rem);
   --section: clamp(5rem, 3rem + 8vw, 9.5rem);
 
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
-  --radius: 2px;
+  --radius: 0px;
 }
 
 *,
@@ -51,7 +53,7 @@ body {
   margin: 0;
   background: var(--paper);
   color: var(--ink);
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: var(--text-base);
   line-height: 1.55;
   font-optical-sizing: auto;
@@ -60,16 +62,6 @@ body {
   text-rendering: optimizeLegibility;
 }
 
-/* Paper grain, 3%. */
-body::before {
-  content: "";
-  position: fixed;
-  inset: 0;
-  pointer-events: none;
-  z-index: 100;
-  opacity: 0.35;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.35 0 0 0 0 0.3 0 0 0 0 0.22 0 0 0 0.09 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-}
 
 a {
   color: inherit;
@@ -135,7 +127,7 @@ pre {
   font-size: var(--text-sm);
   text-decoration: none;
   white-space: nowrap;
-  box-shadow: inset 0 -1px 0 oklch(49% 0.25 264 / 0.25);
+  box-shadow: inset 0 -1px 0 rgba(21, 22, 23, 0.3);
 }
 .chain-link::after {
   content: "";
@@ -168,11 +160,13 @@ pre {
 }
 .wordmark {
   font-size: var(--text-lg);
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-weight: 800;
+  font-stretch: 125%;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.55rem;
 }
 .masthead .eyebrow {
   text-align: right;
@@ -192,15 +186,19 @@ pre {
 }
 .hero h1 {
   font-size: var(--text-display);
-  font-weight: 400;
-  line-height: 0.96;
-  letter-spacing: -0.03em;
+  font-weight: 800;
+  font-stretch: 125%;
+  line-height: 0.98;
+  letter-spacing: -0.02em;
   margin: 1.25rem 0 0;
-  max-width: 13ch;
+  max-width: 17ch;
   text-wrap: balance;
 }
 .hero h1 em {
-  font-style: italic;
+  font-style: normal;
+  font-weight: 400;
+  font-stretch: 100%;
+  color: var(--ink-2);
 }
 .lede {
   grid-column: 2;
@@ -266,8 +264,9 @@ pre {
 }
 .section-head h2 {
   font-size: var(--text-2xl);
-  font-weight: 400;
-  letter-spacing: -0.018em;
+  font-weight: 800;
+  font-stretch: 125%;
+  letter-spacing: -0.015em;
   line-height: 1.08;
   margin: 0.6rem 0 0;
   text-wrap: balance;
@@ -495,6 +494,18 @@ pre {
 .verdict.crossed strong {
   color: var(--ink);
 }
+.verdict.crossed svg {
+  color: var(--accent);
+}
+/* The signal square: the brand's one accent, marking the point of settlement. */
+.signal {
+  display: inline-block;
+  width: 0.6em;
+  height: 0.6em;
+  margin-right: 0.5em;
+  background: var(--accent);
+  vertical-align: 0.05em;
+}
 
 /* The chain lens: offers become redaction bars carrying their hash. */
 .redaction {
@@ -560,17 +571,18 @@ pre {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums lining-nums slashed-zero;
   font-size: var(--text-hero);
-  font-weight: 200;
-  letter-spacing: -0.055em;
+  font-weight: 300;
+  letter-spacing: -0.05em;
   line-height: 0.82;
   margin: 1.5rem 0 0 -0.06em;
 }
 .hero-word {
-  font-family: var(--font-serif);
-  font-size: var(--text-hero);
-  font-weight: 300;
-  font-style: italic;
-  letter-spacing: -0.04em;
+  font-family: var(--font-sans);
+  font-size: clamp(3rem, 1.5rem + 6vw, 6rem);
+  font-weight: 800;
+  font-stretch: 125%;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
   line-height: 0.9;
   margin: 1.1rem 0 0;
 }
@@ -652,8 +664,9 @@ pre {
 }
 .process h3 {
   font-size: var(--text-xl);
-  font-weight: 400;
-  letter-spacing: -0.015em;
+  font-weight: 800;
+  font-stretch: 125%;
+  letter-spacing: -0.01em;
   margin: 0.75rem 0 0.6rem;
 }
 .process p {
@@ -734,7 +747,7 @@ pre {
 .copy {
   appearance: none;
   flex: none;
-  border: 1px solid oklch(88% 0.012 84 / 0.25);
+  border: 1px solid rgba(185, 188, 192, 0.3);
   background: transparent;
   color: var(--on-redaction);
   border-radius: var(--radius);
@@ -748,7 +761,7 @@ pre {
   transition: transform 100ms var(--ease-out);
 }
 .copy:hover {
-  border-color: oklch(88% 0.012 84 / 0.6);
+  border-color: rgba(185, 188, 192, 0.7);
 }
 .copy:active {
   transform: scale(0.97);

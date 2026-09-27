@@ -21,11 +21,14 @@ const SOURCIFY = (chainId: number, address: string) => `https://repo.sourcify.de
 /** Mirrors scripts/verify-run.ts: four checks per commit, three for a settlement or one for an expiry, and one on the final contract state. */
 const verifyChecks = (rounds: number, settled: boolean) => rounds * 2 * 4 + (settled ? 3 : 1) + 1;
 
+/** The Cruce mark: the buyer's line rises, the seller's falls, and the square is where they settle. */
 function SealMark() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" aria-hidden="true">
-      <circle cx="10" cy="10" r="8.25" fill="none" stroke="currentColor" strokeWidth="1.25" />
-      <rect x="3.5" y="8.6" width="13" height="2.8" fill="currentColor" />
+    <svg width="26" height="26" viewBox="0 0 64 64" aria-hidden="true">
+      <line x1="8" y1="52" x2="56" y2="20" stroke="currentColor" strokeWidth="6.5" strokeLinecap="square" />
+      <line x1="8" y1="16" x2="56" y2="44" stroke="currentColor" strokeWidth="6.5" strokeLinecap="square" />
+      <rect x="31.3" y="27.3" width="11" height="11" fill="var(--paper)" />
+      <rect x="32.8" y="28.8" width="8" height="8" fill="var(--accent)" />
     </svg>
   );
 }

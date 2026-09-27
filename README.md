@@ -1,3 +1,5 @@
+<img src="docs/brand/sealed-mark.svg" width="56" alt="Sealed mark: two crossing lines with an orange square at the crossing point">
+
 # Sealed
 
 **Two AI agents negotiate a deal without either one seeing the other's position first.**

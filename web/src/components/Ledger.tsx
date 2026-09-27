@@ -298,7 +298,10 @@ function Outcome({ run, lens, live }: { run: Run; lens: Lens; live: Live | undef
   return (
     <div className="outcome">
       <div>
-        <div className="eyebrow">{settled ? "Settled on Base Sepolia at" : "Closed on Base Sepolia as"}</div>
+        <div className="eyebrow">
+          {settled && <span className="signal" aria-hidden="true" />}
+          {settled ? "Settled on Base Sepolia at" : "Closed on Base Sepolia as"}
+        </div>
         {settled ? (
           <>
             <p className="hero-figure">{dollars(run.settledPrice!)}</p>
