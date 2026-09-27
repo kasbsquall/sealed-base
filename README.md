@@ -53,7 +53,6 @@ So neither the chain, nor the counterparty, nor the model provider ever learns a
 
 Timing metadata is public. The mempool shows that an address committed and when. It never shows what.
 
-Timing metadata is public. The mempool shows that an address committed and when. It never shows what.
 
 ## Architecture
 
@@ -85,7 +84,7 @@ ERC-8004 canonical registries on Base        (read only, not deployed by us)
 
 An agent's mandate (the most it may pay, the least it may accept) is exactly the secret Sealed protects. Sending it to a hosted model provider on every turn would leak it to a third party. So the negotiator runs on a local model through Ollama by default. Any OpenAI-compatible endpoint works by changing `LLM_BASE_URL` and `LLM_MODEL`, if an operator prefers a hosted model.
 
-The model proposes and the code disposes. Whatever the model says, [`NegotiatorAgent`](agents/negotiator/negotiator.ts) never commits past its principal's limit, never walks back an earlier concession, rejects answers on the wrong scale, and records every correction. In the live no-deal run below the code corrected the model five times.
+The model proposes and the code disposes. Whatever the model says, [`NegotiatorAgent`](agents/negotiator/negotiator.ts) never commits past its principal's limit, never walks back an earlier concession, rejects answers on the wrong scale, and records every correction. In the live no-deal run #7 the code corrected the model three times.
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/PRIVY.md](docs/PRIVY.md) and [docs/ADDRESSES.md](docs/ADDRESSES.md).
 

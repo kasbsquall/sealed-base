@@ -22,7 +22,11 @@ const RPC = process.env.BASE_SEPOLIA_RPC_URL ?? "https://sepolia.base.org";
 const SEALED = new Interface([
   "function commitOffer(uint256 negotiationId, bytes32 commitment)",
   "function settle(uint256 negotiationId, (uint256 offer, bytes32 salt) buyerReveal, (uint256 offer, bytes32 salt) sellerReveal, bytes buyerAuthorization, bytes sellerAuthorization)",
+  "function expire(uint256 negotiationId)",
+  "function getNegotiation(uint256 negotiationId) view returns ((address buyerWallet, address sellerWallet, uint256 buyerAgentId, uint256 sellerAgentId, bytes32 buyerCommitment, bytes32 sellerCommitment, uint32 buyerCommitIndex, uint32 sellerCommitIndex, uint64 deadline, uint8 status, uint256 settledPrice, bytes32 termsSchema))",
 ]);
+const STATUS_SETTLED = 3n;
+const STATUS_EXPIRED = 4n;
 
 async function main() {
   const file = process.argv[2] ?? process.env.RUN;
@@ -72,7 +76,19 @@ async function main() {
     check(decoded?.args.buyerReveal.offer === BigInt(last.buyer.offer), `settlement disclosed buyer offer ${last.buyer.offer}`);
     check(decoded?.args.sellerReveal.offer === BigInt(last.seller.offer), `settlement disclosed seller offer ${last.seller.offer}`);
   } else {
-    check(!!run.expireTx, "negotiation was closed with expire, disclosing nothing");
+    const tx = run.expireTx && (await provider.getTransaction(run.expireTx));
+    const decoded = tx && SEALED.parseTransaction({ data: tx.data });
+    check(!!decoded && decoded.name === "expire" && decoded.args.negotiationId === negotiationId, "negotiation was closed with an expire call to Sealed, which carries no offer");
+  }
+
+  const state = SEALED.decodeFunctionResult(
+    "getNegotiation",
+    await provider.call({ to: run.contract, data: SEALED.encodeFunctionData("getNegotiation", [negotiationId]) }),
+  )[0];
+  if (run.outcome === "settled") {
+    check(state.status === STATUS_SETTLED && state.settledPrice === BigInt(run.settledPrice), `contract state: Settled at ${run.settledPrice}`);
+  } else {
+    check(state.status === STATUS_EXPIRED && state.settledPrice === 0n, "contract state: Expired, no price recorded");
   }
 
   console.log(failures ? `\n${failures} check(s) failed.` : "\nEvery check passed.");

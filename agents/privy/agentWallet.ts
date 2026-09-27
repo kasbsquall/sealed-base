@@ -1,5 +1,5 @@
 import { PrivyClient } from "@privy-io/node";
-import { Interface, JsonRpcProvider, TypedDataEncoder } from "ethers";
+import { Interface, TypedDataEncoder, toQuantity, type Provider } from "ethers";
 import {
   commitmentHash,
   settleAuthorizationTypedData,
@@ -7,6 +7,8 @@ import {
   type SealedDomain,
   type SettleAuthorizationMessage,
 } from "../sealed/commitment";
+import { baseFees } from "../sealed/fees";
+import type { PartyWallet } from "../wallets/partyWallet";
 
 const SEALED_ABI = [
   "function commitOffer(uint256 negotiationId, bytes32 commitment)",
@@ -15,6 +17,7 @@ const SEALED_ABI = [
 ];
 
 const sealedInterface = new Interface(SEALED_ABI);
+const identityInterface = new Interface(["function register(string agentURI) returns (uint256)"]);
 
 export interface AgentWalletConfig {
   privy: PrivyClient;
@@ -26,7 +29,8 @@ export interface AgentWalletConfig {
   domain: SealedDomain;
   /** Base64 PKCS8 authorization key that lets this backend act for the wallet. */
   authorizationPrivateKey: string;
-  provider?: JsonRpcProvider;
+  /** Used to estimate gas, price fees and wait for receipts. Strongly recommended. */
+  provider?: Provider;
 }
 
 /**
@@ -59,7 +63,7 @@ export async function provisionAgentWallet(
  * Privy policy enforces the same restriction independently, so a bug here is
  * caught there.
  */
-export class AgentWallet {
+export class AgentWallet implements PartyWallet {
   constructor(private readonly config: AgentWalletConfig) {}
 
   get address(): string {
@@ -75,6 +79,47 @@ export class AgentWallet {
   }
 
   /**
+   * Sends calldata this class built itself, and waits for it to land. With a
+   * provider, gas is estimated with headroom and fees follow the latest block:
+   * both parties usually commit in the same block, and whichever lands second
+   * also flips the negotiation to Locked, which costs more than its estimate saw.
+   */
+  private async send(to: string, data: string): Promise<string> {
+    const { provider } = this.config;
+    const extra: { gas_limit?: string; max_fee_per_gas?: string; max_priority_fee_per_gas?: string } = {};
+    if (provider) {
+      const estimate = await provider.estimateGas({ from: this.config.address, to, data });
+      const fees = await baseFees(provider);
+      extra.gas_limit = toQuantity((estimate * 3n) / 2n);
+      extra.max_fee_per_gas = toQuantity(fees.maxFeePerGas);
+      extra.max_priority_fee_per_gas = toQuantity(fees.maxPriorityFeePerGas);
+    }
+
+    const { hash } = await this.config.privy.wallets().ethereum().sendTransaction(this.config.walletId, {
+      caip2: this.caip2,
+      params: {
+        transaction: { to, value: "0x0", data, chain_id: Number(this.config.domain.chainId), ...extra },
+      },
+      authorization_context: this.authorizationContext,
+    });
+
+    if (provider) {
+      const receipt = await provider.waitForTransaction(hash);
+      if (!receipt || receipt.status !== 1) throw new Error(`transaction failed: ${hash}`);
+    }
+    return hash;
+  }
+
+  /**
+   * Creates this agent's ERC-8004 identity. The registry records the caller as
+   * the agent's wallet, so the Privy wallet becomes the agent without ever
+   * signing anything outside its mandate.
+   */
+  async registerAgent(identityRegistry: string, agentURI: string): Promise<string> {
+    return this.send(identityRegistry, identityInterface.encodeFunctionData("register", [agentURI]));
+  }
+
+  /**
    * Locks in a position. The offer and the salt stay in this process; what goes
    * on-chain is a hash the agent computed itself.
    */
@@ -86,23 +131,7 @@ export class AgentWallet {
       commitIndex,
       position,
     });
-
-    const data = sealedInterface.encodeFunctionData("commitOffer", [negotiationId, commitment]);
-
-    const { hash } = await this.config.privy.wallets().ethereum().sendTransaction(this.config.walletId, {
-      caip2: this.caip2,
-      params: {
-        transaction: {
-          to: this.config.domain.verifyingContract,
-          value: "0x0",
-          data,
-          chain_id: Number(this.config.domain.chainId),
-        },
-      },
-      authorization_context: this.authorizationContext,
-    });
-
-    return hash;
+    return this.send(this.config.domain.verifyingContract, sealedInterface.encodeFunctionData("commitOffer", [negotiationId, commitment]));
   }
 
   /**
@@ -163,40 +192,11 @@ export class AgentWallet {
       args.buyerAuthorization,
       args.sellerAuthorization,
     ]);
-
-    const { hash } = await this.config.privy.wallets().ethereum().sendTransaction(this.config.walletId, {
-      caip2: this.caip2,
-      params: {
-        transaction: {
-          to: this.config.domain.verifyingContract,
-          value: "0x0",
-          data,
-          chain_id: Number(this.config.domain.chainId),
-        },
-      },
-      authorization_context: this.authorizationContext,
-    });
-
-    return hash;
+    return this.send(this.config.domain.verifyingContract, data);
   }
 
   /** Closes a negotiation that ran out of time, disclosing nothing. */
   async expire(negotiationId: bigint): Promise<string> {
-    const data = sealedInterface.encodeFunctionData("expire", [negotiationId]);
-
-    const { hash } = await this.config.privy.wallets().ethereum().sendTransaction(this.config.walletId, {
-      caip2: this.caip2,
-      params: {
-        transaction: {
-          to: this.config.domain.verifyingContract,
-          value: "0x0",
-          data,
-          chain_id: Number(this.config.domain.chainId),
-        },
-      },
-      authorization_context: this.authorizationContext,
-    });
-
-    return hash;
+    return this.send(this.config.domain.verifyingContract, sealedInterface.encodeFunctionData("expire", [negotiationId]));
   }
 }

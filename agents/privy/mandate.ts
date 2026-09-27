@@ -33,7 +33,24 @@ export interface MandateConfig {
   ownerId: string;
   /** Label shown in the Privy dashboard. */
   name?: string;
+  /**
+   * ERC-8004 Identity Registry. When given, the wallet may also call
+   * `register` there, and only `register`, so an agent can create its own
+   * identity. The registry records the caller as the agent's wallet, which is
+   * how the wallet becomes an ERC-8004 agent without ever being unconstrained.
+   */
+  identityRegistry?: string;
 }
+
+const REGISTER_ABI = [
+  {
+    name: "register",
+    type: "function",
+    stateMutability: "nonpayable",
+    inputs: [{ internalType: "string", name: "agentURI", type: "string" }],
+    outputs: [{ internalType: "uint256", name: "agentId", type: "uint256" }],
+  },
+];
 
 /**
  * Creates the policy. Run once per deployment; reuse the returned id across the
@@ -102,6 +119,42 @@ export async function createSealedMandate(privy: PrivyClient, config: MandateCon
           },
         ],
       },
+      ...(config.identityRegistry
+        ? [
+            {
+              name: "Only register an ERC-8004 identity",
+              method: "eth_sendTransaction" as const,
+              action: "ALLOW" as const,
+              conditions: [
+                {
+                  field_source: "ethereum_transaction" as const,
+                  field: "to" as const,
+                  operator: "eq" as const,
+                  value: config.identityRegistry.toLowerCase(),
+                },
+                {
+                  field_source: "ethereum_transaction" as const,
+                  field: "chain_id" as const,
+                  operator: "eq" as const,
+                  value: String(config.chainId),
+                },
+                {
+                  field_source: "ethereum_transaction" as const,
+                  field: "value" as const,
+                  operator: "eq" as const,
+                  value: "0x0",
+                },
+                {
+                  field_source: "ethereum_calldata" as const,
+                  field: "function_name",
+                  abi: REGISTER_ABI,
+                  operator: "eq" as const,
+                  value: "register",
+                },
+              ],
+            },
+          ]
+        : []),
     ],
   });
 }
