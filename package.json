@@ -11,7 +11,8 @@
     "check:registries": "hardhat run scripts/check-registries.ts --network baseSepolia",
     "seed:base-sepolia": "hardhat run scripts/seed-demo.ts --network baseSepolia",
     "demo:base-sepolia": "hardhat run scripts/run-demo.ts --network baseSepolia",
-    "verify:run": "hardhat run scripts/verify-run.ts"
+    "verify:run": "hardhat run scripts/verify-run.ts",
+    "demo:privy": "hardhat run scripts/privy-demo.ts --network baseSepolia"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
