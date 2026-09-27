@@ -41,7 +41,8 @@ export interface PartyRound {
   offer: string;
   proposedOffer?: string;
   correction?: Decision["correction"];
-  reasoning: string;
+  stance: Decision["stance"];
+  explanation: string;
   commitIndex: number;
   commitment: string;
   commitTx: string;
@@ -182,7 +183,8 @@ export class ClearingRelay {
     const party = (d: Decision, c: { txHash: string; commitment: string }, r: Reveal): PartyRound => ({
       offer: d.offer.toString(),
       ...(d.proposedOffer !== undefined ? { proposedOffer: d.proposedOffer.toString(), correction: d.correction } : {}),
-      reasoning: d.reasoning,
+      stance: d.stance,
+      explanation: d.explanation,
       commitIndex: r.commitIndex,
       commitment: c.commitment,
       commitTx: c.txHash,

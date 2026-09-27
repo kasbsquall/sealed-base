@@ -18,13 +18,24 @@ export interface Mandate {
   unit: string;
 }
 
+/** The move the model chose for a round. The number is chosen alongside it. */
+export const STANCES = ["open-with-room", "concede", "hold", "final-at-limit"] as const;
+export type Stance = (typeof STANCES)[number];
+
 export interface Decision {
   round: number;
+  /** Chosen by the model. */
+  stance: Stance;
   offer: bigint;
   /** What the model proposed, when the code had to correct it. */
   proposedOffer?: bigint;
   correction?: "limit" | "no-backtracking";
-  reasoning: string;
+  /**
+   * Written by code from the committed numbers, never by the model. A small
+   * local model picks good numbers but misstates arithmetic when it explains
+   * them, so the explanation is derived rather than generated.
+   */
+  explanation: string;
 }
 
 /** What the agent hands the relay after committing: enough to check it against the chain. */
@@ -37,10 +48,10 @@ export interface Reveal {
 const DECISION_SCHEMA = {
   type: "object",
   additionalProperties: false,
-  required: ["offer", "reasoning"],
+  required: ["stance", "offer"],
   properties: {
+    stance: { type: "string", enum: [...STANCES] },
     offer: { type: "integer", description: "This round's sealed number, in the unit given." },
-    reasoning: { type: "string", description: "One or two sentences on why." },
   },
 };
 
@@ -109,7 +120,7 @@ export class NegotiatorAgent {
     return this.wallet.authorizeSettlement(message);
   }
 
-  private async askModel(round: number): Promise<{ offer: bigint; reasoning: string }> {
+  private async askModel(round: number): Promise<{ offer: bigint; stance: Stance }> {
     const { role, limit, reference, maxRounds, unit } = this.mandate;
     const counterparty = role === "buyer" ? "seller" : "buyer";
     const [limitRule, toward, away] =
@@ -128,7 +139,7 @@ export class NegotiatorAgent {
           `Each round, you and the ${counterparty} each commit one sealed number at the same time. A clearing relay only says whether the numbers crossed (buyer's number at or above seller's number). If they cross, the deal settles at the midpoint of the two numbers. You never learn the ${counterparty}'s number.`,
           `There are at most ${maxRounds} rounds. If nothing crosses by the last round, there is no deal, and a deal inside your limit is better for your principal than no deal.`,
           `So: open with room to move, never move ${away} from an earlier number, move ${toward} toward your limit each round that does not cross, and in the last round commit at or very near your limit.`,
-          `Reply only with the JSON object; reasoning is one short sentence.`,
+          `Pick a stance (${STANCES.join(", ")}) and the number that carries it out. Reply only with the JSON object.`,
         ].join(" "),
       },
       {
@@ -137,7 +148,7 @@ export class NegotiatorAgent {
           `Round ${round} of ${maxRounds}${last ? " (last round)" : ""}.`,
           `Public reference price: ${reference}.`,
           previous.length ? `Your earlier numbers: ${previous.join(", ")}. None crossed.` : `Opening round.`,
-          `Your number for this round?`,
+          `Your stance and number for this round?`,
         ].join(" "),
       },
     ];
@@ -145,12 +156,13 @@ export class NegotiatorAgent {
     let lastError: unknown;
     for (let attempt = 0; attempt < 2; attempt++) {
       try {
-        const out = await this.llm.chatJson<{ offer: number; reasoning: string }>(messages, "decision", DECISION_SCHEMA);
+        const out = await this.llm.chatJson<{ offer: number; stance: string }>(messages, "decision", DECISION_SCHEMA);
         // A small model sometimes answers on the wrong scale (4e15 for 4000). Anything
         // more than 10x away from the public reference is treated as no answer.
         const plausible = out.offer * 10 >= Number(reference) && out.offer <= Number(reference) * 10;
         if (!Number.isInteger(out.offer) || out.offer <= 0 || !plausible) throw new Error(`implausible offer ${out.offer}`);
-        return { offer: BigInt(out.offer), reasoning: String(out.reasoning ?? "").slice(0, 600) };
+        if (!STANCES.includes(out.stance as Stance)) throw new Error(`unknown stance ${out.stance}`);
+        return { offer: BigInt(out.offer), stance: out.stance as Stance };
       } catch (error) {
         lastError = error;
       }
@@ -158,7 +170,7 @@ export class NegotiatorAgent {
     throw new Error(`${this.name}: model gave no usable decision (${String(lastError)})`);
   }
 
-  private enforceMandate(round: number, proposed: { offer: bigint; reasoning: string }): Decision {
+  private enforceMandate(round: number, proposed: { offer: bigint; stance: Stance }): Decision {
     const { role, limit } = this.mandate;
     const previous = this.decisions.at(-1)?.offer;
     let offer = proposed.offer;
@@ -171,8 +183,31 @@ export class NegotiatorAgent {
       if (role === "seller" && offer > previous) [offer, correction] = [previous, "no-backtracking"];
     }
 
+    const explanation = this.explain(offer, previous, proposed.offer, correction);
     return correction
-      ? { round, offer, proposedOffer: proposed.offer, correction, reasoning: proposed.reasoning }
-      : { round, offer, reasoning: proposed.reasoning };
+      ? { round, stance: proposed.stance, offer, proposedOffer: proposed.offer, correction, explanation }
+      : { round, stance: proposed.stance, offer, explanation };
+  }
+
+  /** Plain-English account of a committed number, computed from the numbers themselves. */
+  private explain(offer: bigint, previous: bigint | undefined, proposed: bigint, correction?: Decision["correction"]) {
+    const { role, limit, reference } = this.mandate;
+    const gap = (a: bigint, b: bigint, above: string, below: string) =>
+      a === b ? `equal to ${below === "below its limit" ? "its limit" : "the reference"}` : a > b ? `${a - b} ${above}` : `${b - a} ${below}`;
+    const vsRef = gap(offer, reference, "above the reference", "below the reference");
+    const room = offer === limit ? "at its limit" : gap(offer, limit, "above its limit", "below its limit");
+
+    let move: string;
+    if (previous === undefined) move = `Opened at ${offer}`;
+    else if (offer === previous) move = `Held at ${offer}`;
+    else move = `Moved ${offer > previous ? "up" : "down"} ${offer > previous ? offer - previous : previous - offer} to ${offer}`;
+
+    const parts = [`${move}, ${vsRef}, ${room}.`];
+    if (correction === "limit") {
+      parts.push(`The model asked for ${proposed}; code held the ${role} to its limit of ${limit}.`);
+    } else if (correction === "no-backtracking") {
+      parts.push(`The model asked for ${proposed}, which would take back an earlier concession; code kept ${offer}.`);
+    }
+    return parts.join(" ");
   }
 }

@@ -130,7 +130,7 @@ Everything below is on Base Sepolia and readable without a wallet.
 1. **The contracts are the code in this repo.** [`0x0C0E12C9C77FAcDa9302514A818DF232346e773A`](https://sepolia.basescan.org/address/0x0C0E12C9C77FAcDa9302514A818DF232346e773A) and [`0xDC237A8ade5dd125A18146f1b5943eE4E975a407`](https://sepolia.basescan.org/address/0xDC237A8ade5dd125A18146f1b5943eE4E975a407) are verified on Sourcify with an exact match.
 2. **They read the real ERC-8004 registries.** `ReputationGate` was deployed pointing at the canonical Identity and Reputation registries (`0x8004A818…`, `0x8004B663…`), and `npm run check:registries` calls them live.
 3. **A negotiation settled on-chain without either offer appearing before settlement.** Open the two commit transactions of negotiation #1, [`0xa62210cd…`](https://sepolia.basescan.org/tx/0xa62210cd8ab8d1288f80b7df487de2a0bf3f347ca7e9eb9123e01e6d75a043dc) and [`0x1d6f6ad1…`](https://sepolia.basescan.org/tx/0x1d6f6ad16a7b9c1272ce360949d0e702c2ba1c28435cfeff8c8ddbb3e3ae49b3): each carries a 32-byte hash and nothing else. Both offers become public together, only in the settlement [`0x3c8a95a1…`](https://sepolia.basescan.org/tx/0x3c8a95a18eb705f34a22e76be6c813b545ff0602ebd3c99e695d22964cbe35c9).
-4. **Two AI agents negotiated on Base Sepolia with a local model.** In [negotiation #3](https://sepolia.basescan.org/tx/0x660fb33c630d72ceb7c6ec529cacb1e13adb01c1457d4dc0b164eb363fd23168) round 1 did not cross (4100 against 4200), both conceded, and round 2 settled at 4175. In [negotiation #5](https://sepolia.basescan.org/tx/0xe71e8eac6e961eaf494b727fbc5a07c2353032cec3fdbb5ec23dc92d7fcce580) the mandates could not overlap: three rounds, no cross, expired with neither number on-chain. The full transcripts are in [`demo-runs/`](demo-runs), and `RUN=demo-runs/baseSepolia-deal-3.json npm run verify:run` re-derives every on-chain hash from them.
+4. **Two AI agents negotiated on Base Sepolia with a local model.** In [negotiation #6](https://sepolia.basescan.org/tx/0x772b8170d9c247d73fa1e3daa93541024c855a8a1d0f2bcbe101f6fad8830a5e) rounds 1 and 2 did not cross (4100 against 4200, then 4100 against 4150); in round 3 both went to their limits, the numbers crossed, and the deal settled at the midpoint, 4200. In [negotiation #7](https://sepolia.basescan.org/tx/0x9a83c35c6dcd7f6081f3bd2ec8bec14784baa7bf59e5bc72a4b4659dea5590be) the mandates could not overlap: the model tried to open past each principal's limit, code held both agents at their limits, three rounds did not cross, and the negotiation expired with neither number on-chain. The transcripts are in [`demo-runs/`](demo-runs), and `RUN=demo-runs/baseSepolia-deal-6.json npm run verify:run` re-derives every on-chain hash from them. Negotiations #3 and #5 are earlier runs of the same scenarios with the previous prompt.
 5. **The demo reputation is seeded, and labelled that way.** Agents 9341, 9342 and 9343 and their reviewers were created by `scripts/seed-demo.ts`. See [docs/ADDRESSES.md](docs/ADDRESSES.md).
 
 ## Status
@@ -138,9 +138,9 @@ Everything below is on Base Sepolia and readable without a wallet.
 | | |
 |---|---|
 | ERC-8004 integration researched and addresses confirmed | done |
-| `SealedNegotiation.sol` with atomic EIP-712 settlement | done, 27 tests passing against the real ERC-8004 registry code |
+| `SealedNegotiation.sol` with atomic EIP-712 settlement | done, tested against the real ERC-8004 registry code (36 tests in the suite) |
 | `ReputationGate.sol` with explicit on-chain admission policy over trusted reviewers | done, interface checked against live Base Sepolia |
-| Privy agent wallets under a contract-scoped mandate | done, typechecked |
+| Privy agent wallets under a contract-scoped mandate | written and typechecked, not yet run against Privy |
 | Deployment to Base Sepolia, source verified on Sourcify | done, see [docs/ADDRESSES.md](docs/ADDRESSES.md) |
 | First live negotiation on Base Sepolia (scripted) | done, settled on-chain |
 | Negotiator agent on a local model, clearing relay | done, two live negotiations on Base Sepolia |

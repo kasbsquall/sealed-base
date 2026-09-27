@@ -1,0 +1,106 @@
+{
+  "scenario": "no-deal",
+  "network": "baseSepolia",
+  "chainId": 84532,
+  "contract": "0x0C0E12C9C77FAcDa9302514A818DF232346e773A",
+  "relay": "0x764C0B6711548f6B136d752A49653A5f0613B850",
+  "model": "qwen2.5:14b-instruct",
+  "modelHost": "local (Ollama on the operator's machine)",
+  "terms": "Demo: price per 1,000 calls to a market-data API, 30-day term, in US cents",
+  "termsSchema": "0x211de523391648e1eb967008eeb83cd45c08c95eb01206f0e0180b9603b04d71",
+  "referencePrice": "4000",
+  "disclosure": "Demo only: mandates, offers, stances and salts are published so every on-chain hash can be recomputed. A real agent never discloses them.",
+  "agents": {
+    "buyer": {
+      "agentId": "9341",
+      "wallet": "0x9DE7DeEcCfFf2CA1958E48C3038b85e7130Bd240",
+      "limit": "3600"
+    },
+    "seller": {
+      "agentId": "9342",
+      "wallet": "0xB69841BBe445D059968f4949E5312B182eFF4726",
+      "limit": "4300"
+    }
+  },
+  "startedAt": "2026-09-27T17:10:47.739Z",
+  "finishedAt": "2026-09-27T17:13:25.970Z",
+  "negotiationId": "7",
+  "createTx": "0x77a507048d1e015e4a1ddafabc4613e9fe977884c9773cba6aabe20a568e9a02",
+  "deadline": "1790529198",
+  "rounds": [
+    {
+      "round": 1,
+      "buyer": {
+        "offer": "3600",
+        "proposedOffer": "3800",
+        "correction": "limit",
+        "stance": "open-with-room",
+        "explanation": "Opened at 3600, 400 below the reference, at its limit. The model asked for 3800; code held the buyer to its limit of 3600.",
+        "commitIndex": 1,
+        "commitment": "0x5029cc84cf738e1a48ce8ff68f490906d1bfcab9e627b2cb9ed94bc71b85b866",
+        "commitTx": "0x9bb5e558e97e62650a2c2f4642f027de47ee6cb043dead46d0b645a426db2bec",
+        "salt": "0x6eaa0afd38d0bd3f652165cca93746bc3cba56f28037360fe0ab8abdb55550b5"
+      },
+      "seller": {
+        "offer": "4300",
+        "proposedOffer": "4200",
+        "correction": "limit",
+        "stance": "open-with-room",
+        "explanation": "Opened at 4300, 300 above the reference, at its limit. The model asked for 4200; code held the seller to its limit of 4300.",
+        "commitIndex": 1,
+        "commitment": "0x6db06b6d7d9dd4756e8781030a035a2593bdcf6f23d24212058f2c25219b2c93",
+        "commitTx": "0x25b1d27157139cac6033c8daa5b47d82c64eaa02a92dc4c832cf8e94ea0fee33",
+        "salt": "0x6d047780d2bd8822cab1e1e732df912e465dd17a6fbab1f578a64983b494423f"
+      },
+      "crossed": false
+    },
+    {
+      "round": 2,
+      "buyer": {
+        "offer": "3600",
+        "stance": "final-at-limit",
+        "explanation": "Held at 3600, 400 below the reference, at its limit.",
+        "commitIndex": 2,
+        "commitment": "0x81c4d5b572f3227ae16d652fed154ec7892ad983eac50213e076cc88bd7f78c8",
+        "commitTx": "0xce99bd34cbd0452174f7e4e00b6421c9096b31c9320a8db50da2a41a61571971",
+        "salt": "0x79e8d99140c4a47900b00e0be52e055bfa7e5cf95a75e7e7c960692f64841b08"
+      },
+      "seller": {
+        "offer": "4300",
+        "proposedOffer": "4200",
+        "correction": "limit",
+        "stance": "concede",
+        "explanation": "Held at 4300, 300 above the reference, at its limit. The model asked for 4200; code held the seller to its limit of 4300.",
+        "commitIndex": 2,
+        "commitment": "0x8fb68e31e243715e50d0f33a7ce3ddc984fdb36eb6ba870048e577ddd56f2ed6",
+        "commitTx": "0xef167a690b066ffb3f536947f24f52949d98afd334c6dd09cb311d2a6080964d",
+        "salt": "0x853c0ed910d4b4ea027a65c85db1a759a0db80fd617392ac48539bf266fac6a0"
+      },
+      "crossed": false
+    },
+    {
+      "round": 3,
+      "buyer": {
+        "offer": "3600",
+        "stance": "final-at-limit",
+        "explanation": "Held at 3600, 400 below the reference, at its limit.",
+        "commitIndex": 3,
+        "commitment": "0x32915b87bdc46a85c764a9086693f4c807575f088fdd1dc090da0cc8a5c2881b",
+        "commitTx": "0x223c400e3ec350ef3860f87872deb5bec4a40c5b0990e4ef5fdf9614c307803f",
+        "salt": "0xb4259ecec411bf29f94a06e49a3c29a2be79000f1b9e5c615381ebb476284fa1"
+      },
+      "seller": {
+        "offer": "4300",
+        "stance": "final-at-limit",
+        "explanation": "Held at 4300, 300 above the reference, at its limit.",
+        "commitIndex": 3,
+        "commitment": "0x0d59f2c964733542ce529ab21bf4f980d2c972a2716653b1d317705a006e5cd8",
+        "commitTx": "0x256d3336eaef19795f3970b05706911fa6c3e5486317e1cc1a6e68935f758103",
+        "salt": "0x70207d99cce2ed6574ec03da0a9c83577595b2d3e6e3ba43c0280068dc55c4bd"
+      },
+      "crossed": false
+    }
+  ],
+  "outcome": "expired",
+  "expireTx": "0x9a83c35c6dcd7f6081f3bd2ec8bec14784baa7bf59e5bc72a4b4659dea5590be"
+}

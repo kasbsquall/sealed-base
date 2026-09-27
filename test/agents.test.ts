@@ -16,7 +16,7 @@ class ScriptedModel implements LlmClient {
   async chatJson<T>(_messages: ChatMessage[]): Promise<T> {
     const next = this.offers[Math.min(this.turn++, this.offers.length - 1)];
     if (next === "garbage") throw new Error("model returned garbage");
-    return { offer: next, reasoning: `scripted ${next}` } as T;
+    return { offer: next, stance: this.turn === 1 ? "open-with-room" : "concede" } as T;
   }
 }
 
@@ -145,6 +145,17 @@ describe("Negotiator agents and the clearing relay", () => {
     expect(record.outcome).to.equal("aborted");
     expect(record.rounds).to.have.length(0);
     expect(record.expireTx).to.be.a("string");
+  });
+
+  it("explains each committed number from the numbers, not from the model", async () => {
+    const { agent, negotiate } = await setup();
+    const record = await negotiate(agent("buyer", 4000, [3800, 9999]), agent("seller", 3900, [4600, 3950]));
+
+    expect(record.rounds[0].buyer.explanation).to.equal("Opened at 3800, 200 below the reference, 200 below its limit.");
+    expect(record.rounds[1].buyer.explanation).to.equal(
+      "Moved up 200 to 4000, equal to the reference, at its limit. The model asked for 9999; code held the buyer to its limit of 4000.",
+    );
+    expect(record.rounds[1].seller.stance).to.equal("concede");
   });
 
   it("treats an answer on the wrong scale as no answer", async () => {

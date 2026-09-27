@@ -92,7 +92,9 @@ async function main() {
       onEvent: (m) => console.log(`  ${m}`),
     });
     for (const r of record.rounds) {
-      console.log(`  round ${r.round}: buyer ${r.buyer.offer}${r.buyer.correction ? ` (model said ${r.buyer.proposedOffer})` : ""}, seller ${r.seller.offer}${r.seller.correction ? ` (model said ${r.seller.proposedOffer})` : ""}, crossed ${r.crossed}`);
+      console.log(`  round ${r.round}: crossed ${r.crossed}
+    buyer  ${r.buyer.stance}: ${r.buyer.explanation}
+    seller ${r.seller.stance}: ${r.seller.explanation}`);
     }
 
     const transcript = {
@@ -106,7 +108,7 @@ async function main() {
       terms: TERMS,
       termsSchema: ethers.id(TERMS),
       referencePrice: REFERENCE.toString(),
-      disclosure: "Demo only: mandates, offers, salts and reasoning are published so every on-chain hash can be recomputed. A real agent never discloses them.",
+      disclosure: "Demo only: mandates, offers, stances and salts are published so every on-chain hash can be recomputed. A real agent never discloses them.",
       agents: {
         buyer: { agentId: state.agents.buyer.agentId, wallet: buyer.wallet.address, limit: scenario.buyerLimit.toString() },
         seller: { agentId: state.agents.seller.agentId, wallet: seller.wallet.address, limit: scenario.sellerLimit.toString() },

@@ -10,3 +10,7 @@ coverage.json
 
 # Local demo keys (buyer, seller, reviewers). Never commit.
 .demo-wallets.json
+web/node_modules/
+web/.next/
+web/out/
+web/next-env.d.ts
