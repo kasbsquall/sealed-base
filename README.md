@@ -29,6 +29,8 @@ Two agents, each with an ERC-8004 identity and reputation on Base, reach an agre
 3. **Atomic settlement.** There is no reveal phase. `settle` consumes both offers, both salts and both EIP-712 authorizations in a single transaction. Either both positions land on-chain in the same instant or neither ever does.
 4. **Silent failure.** If the positions do not clear, nothing is submitted and the negotiation expires. The chain records that two agents talked and did not trade. It never records what either one asked for.
 
+Between rounds, a **clearing relay** checks each agent's reveal against its on-chain hash and tells both sides one bit: crossed or not. In a round that does not cross, neither agent learns the other's number, so counter-offers stay sealed too.
+
 ## Why textbook commit-reveal is not enough here
 
 The standard sealed-bid pattern is commit a hash, then reveal. In an auction with many bidders and a deposit at stake, fine. In a two-party negotiation it fails in two specific ways, and both are fixed in [`SealedNegotiation.sol`](contracts/SealedNegotiation.sol).
@@ -41,9 +43,15 @@ Sealed removes the reveal phase entirely. Settlement is one atomic call carrying
 
 ## What Sealed does not claim
 
-Once both commitments are locked, the two agents exchange reveal payloads with each other off-chain to check compatibility. At that moment each learns the other's final number. That disclosure is simultaneous and post-commitment: neither agent can still change its own position, because its own position is already hashed on-chain. That is exactly the sealed-bid guarantee, and it is the honest limit of what is reachable without threshold encryption or an FHE coprocessor.
+Checking whether two sealed numbers cross needs someone to see both. In Sealed that is the clearing relay ([`agents/relay/clearingRelay.ts`](agents/relay/clearingRelay.ts)), and its power is deliberately narrow:
 
-Sealed guarantees that nothing leaks **before** commitment, and that nothing leaks **unilaterally**, ever.
+- it **cannot change or forge a deal**: settlement needs both agents' EIP-712 signatures over the exact committed pair, and the contract re-checks every reveal against its hash;
+- it **cannot be lied to**: a reveal that does not hash to the on-chain commitment is rejected;
+- it **is trusted with confidentiality**: it sees both numbers of a round that does not cross, and discards them.
+
+So neither the chain, nor the counterparty, nor the model provider ever learns an agent's position unless the deal settles. The relay does, briefly. The production path is to run it inside an attested TEE, or to replace the comparison with threshold encryption or an FHE coprocessor. The demo relay runs on the operator's machine, and this README says so.
+
+Timing metadata is public. The mempool shows that an address committed and when. It never shows what.
 
 Timing metadata is public. The mempool shows that an address committed and when. It never shows what.
 
@@ -65,9 +73,19 @@ ERC-8004 canonical registries on Base        (read only, not deployed by us)
                           contract allowlist is Sealed and nothing else
         |
         v
-  NegotiatorAgent         decides the position within its principal's mandate,
-                          and never discloses that mandate to anyone
+  NegotiatorAgent         decides each round's number with a local model (Qwen 2.5
+                          14B on Ollama); code clamps it to the mandate
+        |
+        v
+  ClearingRelay           checks reveals against on-chain hashes, answers one bit
+                          per round, submits the atomic settlement or the expiry
 ```
+
+### The mandate never leaves the operator's machine
+
+An agent's mandate (the most it may pay, the least it may accept) is exactly the secret Sealed protects. Sending it to a hosted model provider on every turn would leak it to a third party. So the negotiator runs on a local model through Ollama by default. Any OpenAI-compatible endpoint works by changing `LLM_BASE_URL` and `LLM_MODEL`, if an operator prefers a hosted model.
+
+The model proposes and the code disposes. Whatever the model says, [`NegotiatorAgent`](agents/negotiator/negotiator.ts) never commits past its principal's limit, never walks back an earlier concession, rejects answers on the wrong scale, and records every correction. In the live no-deal run below the code corrected the model five times.
 
 See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/PRIVY.md](docs/PRIVY.md) and [docs/ADDRESSES.md](docs/ADDRESSES.md).
 
@@ -94,6 +112,9 @@ The test suite is where the privacy claims are proved rather than asserted. Amon
 - a commitment cannot be replayed against another deployment of the same contract
 - an expired negotiation puts neither position on-chain
 - the agent's own off-chain commitment encoder matches the contract exactly, across the full uint256 range
+- an agent never commits past its mandate, whatever the model answers
+- the relay refuses a reveal that does not match the on-chain commitment
+- an agent fails closed when its model gives no usable answer
 
 Deploy to Base Sepolia (chain id 84532):
 
@@ -109,7 +130,8 @@ Everything below is on Base Sepolia and readable without a wallet.
 1. **The contracts are the code in this repo.** [`0x0C0E12C9C77FAcDa9302514A818DF232346e773A`](https://sepolia.basescan.org/address/0x0C0E12C9C77FAcDa9302514A818DF232346e773A) and [`0xDC237A8ade5dd125A18146f1b5943eE4E975a407`](https://sepolia.basescan.org/address/0xDC237A8ade5dd125A18146f1b5943eE4E975a407) are verified on Sourcify with an exact match.
 2. **They read the real ERC-8004 registries.** `ReputationGate` was deployed pointing at the canonical Identity and Reputation registries (`0x8004A818…`, `0x8004B663…`), and `npm run check:registries` calls them live.
 3. **A negotiation settled on-chain without either offer appearing before settlement.** Open the two commit transactions of negotiation #1, [`0xa62210cd…`](https://sepolia.basescan.org/tx/0xa62210cd8ab8d1288f80b7df487de2a0bf3f347ca7e9eb9123e01e6d75a043dc) and [`0x1d6f6ad1…`](https://sepolia.basescan.org/tx/0x1d6f6ad16a7b9c1272ce360949d0e702c2ba1c28435cfeff8c8ddbb3e3ae49b3): each carries a 32-byte hash and nothing else. Both offers become public together, only in the settlement [`0x3c8a95a1…`](https://sepolia.basescan.org/tx/0x3c8a95a18eb705f34a22e76be6c813b545ff0602ebd3c99e695d22964cbe35c9).
-4. **The demo reputation is seeded, and labelled that way.** Agents 9341, 9342 and 9343 and their reviewers were created by `scripts/seed-demo.ts`. See [docs/ADDRESSES.md](docs/ADDRESSES.md).
+4. **Two AI agents negotiated on Base Sepolia with a local model.** In [negotiation #3](https://sepolia.basescan.org/tx/0x660fb33c630d72ceb7c6ec529cacb1e13adb01c1457d4dc0b164eb363fd23168) round 1 did not cross (4100 against 4200), both conceded, and round 2 settled at 4175. In [negotiation #5](https://sepolia.basescan.org/tx/0xe71e8eac6e961eaf494b727fbc5a07c2353032cec3fdbb5ec23dc92d7fcce580) the mandates could not overlap: three rounds, no cross, expired with neither number on-chain. The full transcripts are in [`demo-runs/`](demo-runs), and `RUN=demo-runs/baseSepolia-deal-3.json npm run verify:run` re-derives every on-chain hash from them.
+5. **The demo reputation is seeded, and labelled that way.** Agents 9341, 9342 and 9343 and their reviewers were created by `scripts/seed-demo.ts`. See [docs/ADDRESSES.md](docs/ADDRESSES.md).
 
 ## Status
 
@@ -121,7 +143,7 @@ Everything below is on Base Sepolia and readable without a wallet.
 | Privy agent wallets under a contract-scoped mandate | done, typechecked |
 | Deployment to Base Sepolia, source verified on Sourcify | done, see [docs/ADDRESSES.md](docs/ADDRESSES.md) |
 | First live negotiation on Base Sepolia (scripted) | done, settled on-chain |
-| Negotiator agent (Claude Opus 5) | in progress |
+| Negotiator agent on a local model, clearing relay | done, two live negotiations on Base Sepolia |
 | Dual-scenario frontend demo | in progress |
 
 ## Built before and during the hackathon

@@ -67,3 +67,17 @@ Full record, including every feedback transaction: [`deployments/baseSepolia.jso
 | Buyer commits (offer not in calldata) | [`0xa62210cd…`](https://sepolia.basescan.org/tx/0xa62210cd8ab8d1288f80b7df487de2a0bf3f347ca7e9eb9123e01e6d75a043dc) |
 | Seller commits (offer not in calldata) | [`0x1d6f6ad1…`](https://sepolia.basescan.org/tx/0x1d6f6ad16a7b9c1272ce360949d0e702c2ba1c28435cfeff8c8ddbb3e3ae49b3) |
 | Atomic settlement at 41.15 | [`0x3c8a95a1…`](https://sepolia.basescan.org/tx/0x3c8a95a18eb705f34a22e76be6c813b545ff0602ebd3c99e695d22964cbe35c9) |
+
+### Agent negotiations (local model, clearing relay)
+
+`scripts/run-demo.ts`, Qwen 2.5 14B on Ollama deciding for each agent. Transcripts in [`demo-runs/`](../demo-runs).
+
+| # | Scenario | Rounds | Outcome | Closing transaction |
+|---|---|---|---|---|
+| 3 | Mandates overlap (buyer limit 4300, seller limit 4100) | 2 | settled at 4175 | [`0x660fb33c…`](https://sepolia.basescan.org/tx/0x660fb33c630d72ceb7c6ec529cacb1e13adb01c1457d4dc0b164eb363fd23168) |
+| 5 | Mandates cannot overlap (buyer 3600, seller 4300) | 3 | expired, nothing disclosed | [`0xe71e8eac…`](https://sepolia.basescan.org/tx/0xe71e8eac6e961eaf494b727fbc5a07c2353032cec3fdbb5ec23dc92d7fcce580) |
+
+Negotiations #2 and #4 were development runs that stopped on a stale read from a
+load-balanced RPC node (fixed in the relay). Both were later closed with `expire`:
+[`#2`](https://sepolia.basescan.org/tx/0x36db8553c4000e588bd393b4bce6a2b77457884f925b8986bbab1cc4f8e23837),
+[`#4`](https://sepolia.basescan.org/tx/0x58d483bc84da7322a3c883e7afb24453ac82e265410cba8da4b268a47247f5f1).

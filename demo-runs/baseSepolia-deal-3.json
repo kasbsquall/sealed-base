@@ -1,0 +1,75 @@
+{
+  "scenario": "deal",
+  "network": "baseSepolia",
+  "chainId": 84532,
+  "contract": "0x0C0E12C9C77FAcDa9302514A818DF232346e773A",
+  "relay": "0x764C0B6711548f6B136d752A49653A5f0613B850",
+  "model": "qwen2.5:14b-instruct",
+  "modelHost": "local (Ollama on the operator's machine)",
+  "terms": "Demo: price per 1,000 calls to a market-data API, 30-day term, in US cents",
+  "termsSchema": "0x211de523391648e1eb967008eeb83cd45c08c95eb01206f0e0180b9603b04d71",
+  "referencePrice": "4000",
+  "disclosure": "Demo only: mandates, offers, salts and reasoning are published so every on-chain hash can be recomputed. A real agent never discloses them.",
+  "agents": {
+    "buyer": {
+      "agentId": "9341",
+      "wallet": "0x9DE7DeEcCfFf2CA1958E48C3038b85e7130Bd240",
+      "limit": "4300"
+    },
+    "seller": {
+      "agentId": "9342",
+      "wallet": "0xB69841BBe445D059968f4949E5312B182eFF4726",
+      "limit": "4100"
+    }
+  },
+  "startedAt": "2026-09-27T16:54:36.416Z",
+  "finishedAt": "2026-09-27T16:56:02.758Z",
+  "negotiationId": "3",
+  "createTx": "0xd077170862e57f64dafbd5edea6aa5f1879d8c3d3a75e33e4ce11f75c9560f00",
+  "deadline": "1790528978",
+  "rounds": [
+    {
+      "round": 1,
+      "buyer": {
+        "offer": "4100",
+        "reasoning": "Starting with a reasonable offer below the reference price to see the seller's response.",
+        "commitIndex": 1,
+        "commitment": "0xe6323952b846d0e1acd99eebcdae7567501aa41ae83bd921fc9e2268ee712a5c",
+        "commitTx": "0x8d7c9242c261e0036207ca4adf286b5324686ecfd194cde48268dc4a5f1376c2",
+        "salt": "0xa955256cf18b8cc8e2a0fbf7722dd0ada0da8c02511188a3f110749c1b5a3991"
+      },
+      "seller": {
+        "offer": "4200",
+        "reasoning": "Starting with a number above the reference price but below the hard limit to leave room for negotiation.",
+        "commitIndex": 1,
+        "commitment": "0xcaf18b370faad7631c3507c2a646fb0a045ad85957b5ed1db08f037524243c5c",
+        "commitTx": "0x3757afaeaa2a6348733e27bba5ef54e9d39fb24ad083d3fd7365012691026b27",
+        "salt": "0xea832fb61b786088d72b3014e37b1662f491f252cc6edf071f672b43ba8f67fa"
+      },
+      "crossed": false
+    },
+    {
+      "round": 2,
+      "buyer": {
+        "offer": "4200",
+        "reasoning": "Moving closer to the hard limit to increase chances of a deal.",
+        "commitIndex": 2,
+        "commitment": "0x9ef64c1f178ff4cc8a40966d0029f8d65e782fa6c2efda3e67164a71404805e6",
+        "commitTx": "0xf85827f6a5acfc1fb15dbecae4db78dc2897f827ed1bc6e506fe73157bd0350c",
+        "salt": "0x09f755d72a7cd4e906b9050ea78bab65e39dc8a2282de1948142c39e65f61255"
+      },
+      "seller": {
+        "offer": "4150",
+        "reasoning": "Moving closer to the hard limit while maintaining flexibility for a potential deal.",
+        "commitIndex": 2,
+        "commitment": "0xa482b120195156a2d516bb257f87e181f3e1bbece940ffdb627b2df7db59867e",
+        "commitTx": "0x7201ee02246c6770fc17649963c7a7a08e844c64648d9f50d0a615ea889ae20f",
+        "salt": "0xf82a1d122632e3c73749c1ca8981517caad79090de2275e1771dc5a22a5ec1a3"
+      },
+      "crossed": true
+    }
+  ],
+  "outcome": "settled",
+  "settleTx": "0x660fb33c630d72ceb7c6ec529cacb1e13adb01c1457d4dc0b164eb363fd23168",
+  "settledPrice": "4175"
+}
