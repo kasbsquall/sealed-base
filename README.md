@@ -47,7 +47,9 @@ Checking whether two sealed numbers cross needs someone to see both. In Sealed t
 - it **cannot be lied to**: a reveal that does not hash to the on-chain commitment is rejected;
 - it **is trusted with confidentiality**: it sees both numbers of a round that does not cross, and discards them.
 
-So neither the chain, nor the counterparty, nor the model provider ever learns an agent's position unless the deal settles. The relay does, briefly. The production path is to run it inside an attested TEE, or to replace the comparison with threshold encryption or an FHE coprocessor. The demo relay runs on the operator's machine, and this README says so.
+So neither the chain, nor the counterparty, nor the model provider ever learns an agent's position unless the deal settles. The relay does, briefly. The production path is to run it inside an attested TEE, or to replace the comparison with threshold encryption or an FHE coprocessor.
+
+The relay holds no agent key. In [negotiation #8](https://sepolia.basescan.org/tx/0xb0d8a3189a0ffc4a2d48f1c93b27c0416bb3b160515d0764c64b386a335a8136) the buyer agent, the seller agent and the relay ran as three separate processes ([`scripts/run-separated.ts`](scripts/run-separated.ts)): each agent loaded only its own key and limit and ran its own model client, and the relay reached them over HTTP ([`agents/relay/party.ts`](agents/relay/party.ts)). All three ran on the operator's machine, and this README says so.
 
 Timing metadata is public. The mempool shows that an address committed and when. It never shows what.
 
@@ -126,6 +128,12 @@ The test suite is where the privacy claims are proved rather than asserted. Amon
 - the relay refuses a reveal that does not match the on-chain commitment
 - an agent fails closed when its model gives no usable answer
 
+Run a negotiation with the relay and each agent in separate processes (needs Ollama for the agents' model and `DEPLOYER_PRIVATE_KEY` for the relay's gas):
+
+```bash
+npx tsx scripts/run-separated.ts
+```
+
 Deploy to Base Sepolia (chain id 84532):
 
 ```bash
@@ -140,7 +148,7 @@ Everything below is on Base Sepolia and readable without a wallet.
 1. **The contracts are the code in this repo.** [`0x0C0E12C9C77FAcDa9302514A818DF232346e773A`](https://sepolia.basescan.org/address/0x0C0E12C9C77FAcDa9302514A818DF232346e773A) and [`0xDC237A8ade5dd125A18146f1b5943eE4E975a407`](https://sepolia.basescan.org/address/0xDC237A8ade5dd125A18146f1b5943eE4E975a407) are verified on Sourcify with an exact match.
 2. **They read the real ERC-8004 registries.** `ReputationGate` was deployed pointing at the canonical Identity and Reputation registries (`0x8004A818…`, `0x8004B663…`), and `npm run check:registries` calls them live.
 3. **A negotiation settled on-chain without either offer appearing before settlement.** Open the two commit transactions of negotiation #1, [`0xa62210cd…`](https://sepolia.basescan.org/tx/0xa62210cd8ab8d1288f80b7df487de2a0bf3f347ca7e9eb9123e01e6d75a043dc) and [`0x1d6f6ad1…`](https://sepolia.basescan.org/tx/0x1d6f6ad16a7b9c1272ce360949d0e702c2ba1c28435cfeff8c8ddbb3e3ae49b3): each carries a 32-byte hash and nothing else. Both offers become public together, only in the settlement [`0x3c8a95a1…`](https://sepolia.basescan.org/tx/0x3c8a95a18eb705f34a22e76be6c813b545ff0602ebd3c99e695d22964cbe35c9).
-4. **Two AI agents negotiated on Base Sepolia with a local model.** In [negotiation #6](https://sepolia.basescan.org/tx/0x772b8170d9c247d73fa1e3daa93541024c855a8a1d0f2bcbe101f6fad8830a5e) rounds 1 and 2 did not cross (4100 against 4200, then 4100 against 4150); in round 3 both went to their limits, the numbers crossed, and the deal settled at the midpoint, 4200. In [negotiation #7](https://sepolia.basescan.org/tx/0x9a83c35c6dcd7f6081f3bd2ec8bec14784baa7bf59e5bc72a4b4659dea5590be) the mandates could not overlap: the model tried to open past each principal's limit, code held both agents at their limits, three rounds did not cross, and the negotiation expired with neither number on-chain. The transcripts are in [`demo-runs/`](demo-runs), and `RUN=demo-runs/baseSepolia-deal-6.json npm run verify:run` re-derives every on-chain hash from them. Negotiations #3 and #5 are earlier runs of the same scenarios with the previous prompt.
+4. **Two AI agents negotiated on Base Sepolia with a local model.** In [negotiation #6](https://sepolia.basescan.org/tx/0x772b8170d9c247d73fa1e3daa93541024c855a8a1d0f2bcbe101f6fad8830a5e) rounds 1 and 2 did not cross (4100 against 4200, then 4100 against 4150); in round 3 both went to their limits, the numbers crossed, and the deal settled at the midpoint, 4200. In [negotiation #7](https://sepolia.basescan.org/tx/0x9a83c35c6dcd7f6081f3bd2ec8bec14784baa7bf59e5bc72a4b4659dea5590be) the mandates could not overlap: the model tried to open past each principal's limit, code held both agents at their limits, three rounds did not cross, and the negotiation expired with neither number on-chain. The transcripts are in [`demo-runs/`](demo-runs), and `RUN=demo-runs/baseSepolia-deal-6.json npm run verify:run` re-derives every on-chain hash from them. Negotiations #3 and #5 are earlier runs of the same scenarios with the previous prompt. [Negotiation #8](https://sepolia.basescan.org/tx/0xb0d8a3189a0ffc4a2d48f1c93b27c0416bb3b160515d0764c64b386a335a8136) is the deal scenario again with the relay and each agent in separate processes; `RUN=demo-runs/baseSepolia-deal-8-separated.json npm run verify:run` checks it.
 5. **The settled price is what gets paid, from a capped budget.** After negotiation #6 the buyer drew $0.042 from its principal's Base Account and paid the seller's API over x402, three times: [`0x0ab24db0…`](https://sepolia.basescan.org/tx/0x0ab24db044cbd2585c5685ac29265e1b016124967fee1ffe09264860e8863fa3), [`0x03a80690…`](https://sepolia.basescan.org/tx/0x03a806901781845c367fe0f4c1f0e317e2dd009218fd44e10fe67bea5504bb60), [`0x9064190f…`](https://sepolia.basescan.org/tx/0x9064190fda4ac35c74959cdb38ed49f077999db077446e4ed1c959318b418026). A call priced at double was refused before anything was signed, and a fourth draw was rejected by Base's SpendPermissionManager. `npm run verify:payments -- demo-runs/baseSepolia-x402-6-base-account.json` checks every payment and every draw against the contract.
 6. **The demo reputation is seeded, and labelled that way.** Agents 9341, 9342 and 9343 and their reviewers were created by `scripts/seed-demo.ts`. See [docs/ADDRESSES.md](docs/ADDRESSES.md).
 
@@ -152,14 +160,14 @@ This is the plan after the event; the demo charges no fee.
 - **First customers.** API sellers that already charge per call over x402. Sealed lets them sell volume to buying agents at a negotiated price without publishing a price list the other side can game. A buyer agent that cannot be squeezed is willing to commit to volume.
 - **What the seller gains.** In negotiation #6 the seller would have accepted $41.00 per 1,000 calls and closed at $42.00, while the buyer paid $1.00 less than its $43.00 ceiling. At 1,000,000 calls a month at $0.042 per call, the seller earns $42,000 and Sealed $105. The fee is not implemented in the contracts yet.
 - **Next, in order.** Move the referee (the clearing relay) into an attested enclave, code the fee into settlement, deploy on Base mainnet, and run a pilot with one x402 seller.
-- **Team.** The founder will build Sealed full-time after the event.
+- **Team.** Kevin Soto Burgos, founder, will build Sealed full-time after the event.
 
 ## Status
 
 | | |
 |---|---|
 | ERC-8004 integration researched and addresses confirmed | done |
-| `SealedNegotiation.sol` with atomic EIP-712 settlement | done, tested against the real ERC-8004 registry code (51 tests in the suite) |
+| `SealedNegotiation.sol` with atomic EIP-712 settlement | done, tested against the real ERC-8004 registry code (52 tests in the suite) |
 | `ReputationGate.sol` with explicit on-chain admission policy over trusted reviewers | done, interface checked against live Base Sepolia |
 | Deployment to Base Sepolia, source verified on Sourcify | done, see [docs/ADDRESSES.md](docs/ADDRESSES.md) |
 | First live negotiation on Base Sepolia (scripted) | done, settled on-chain |

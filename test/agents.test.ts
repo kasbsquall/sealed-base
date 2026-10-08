@@ -5,6 +5,7 @@ import { Wallet } from "ethers";
 import { deployRegistries, leaveFeedback, registerAgent, repeat } from "./helpers/erc8004";
 import { NegotiatorAgent, type Mandate, type Reveal } from "../agents/negotiator/negotiator";
 import { ClearingRelay } from "../agents/relay/clearingRelay";
+import { HttpParty, serveParty, serverUrl } from "../agents/relay/party";
 import { LocalPartyWallet } from "../agents/wallets/partyWallet";
 import type { ChatMessage, LlmClient } from "../agents/llm/client";
 
@@ -61,7 +62,7 @@ async function setup() {
     return new NegotiatorAgent(role, mandate, new LocalPartyWallet(key, domain), new ScriptedModel(offers), domain);
   };
 
-  const negotiate = (buyer: NegotiatorAgent, seller: NegotiatorAgent) =>
+  const negotiate = (buyer: NegotiatorAgent | HttpParty, seller: NegotiatorAgent | HttpParty) =>
     relay.negotiate({
       buyer: { agent: buyer, agentId: buyerId },
       seller: { agent: seller, agentId: sellerId },
@@ -83,6 +84,23 @@ describe("Negotiator agents and the clearing relay", () => {
     expect(record.rounds.map((r) => r.crossed)).to.deep.equal([false, true]);
     expect(record.settledPrice).to.equal("4150");
     expect((await sealed.getNegotiation(BigInt(record.negotiationId))).settledPrice).to.equal(4150n);
+  });
+
+  it("settles the same way when each agent is reached over HTTP and the relay holds no party key", async () => {
+    const { sealed, agent, negotiate } = await setup();
+    const servers = await Promise.all([
+      serveParty(agent("buyer", 4500, [3800, 4200])),
+      serveParty(agent("seller", 3900, [4600, 4100])),
+    ]);
+    try {
+      const [buyer, seller] = await Promise.all(servers.map((s) => HttpParty.connect(serverUrl(s))));
+      const record = await negotiate(buyer, seller);
+      expect(record.outcome).to.equal("settled");
+      expect(record.rounds.map((r) => r.crossed)).to.deep.equal([false, true]);
+      expect((await sealed.getNegotiation(BigInt(record.negotiationId))).settledPrice).to.equal(4150n);
+    } finally {
+      servers.forEach((s) => s.close());
+    }
   });
 
   it("never commits past the principal's limit, whatever the model says", async () => {

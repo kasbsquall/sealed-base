@@ -76,6 +76,7 @@ Full record, including every feedback transaction: [`deployments/baseSepolia.jso
 |---|---|---|---|---|
 | 6 | Mandates overlap (buyer limit 4300, seller limit 4100) | 3 | settled at 4200 | [`0x772b8170…`](https://sepolia.basescan.org/tx/0x772b8170d9c247d73fa1e3daa93541024c855a8a1d0f2bcbe101f6fad8830a5e) |
 | 7 | Mandates cannot overlap (buyer 3600, seller 4300) | 3 | expired, nothing disclosed | [`0x9a83c35c…`](https://sepolia.basescan.org/tx/0x9a83c35c6dcd7f6081f3bd2ec8bec14784baa7bf59e5bc72a4b4659dea5590be) |
+| 8 | Mandates overlap, relay and agents in separate processes | 3 | settled at 4200 | [`0xb0d8a318…`](https://sepolia.basescan.org/tx/0xb0d8a3189a0ffc4a2d48f1c93b27c0416bb3b160515d0764c64b386a335a8136) |
 | 3 | Mandates overlap (buyer limit 4300, seller limit 4100) | 2 | settled at 4175 | [`0x660fb33c…`](https://sepolia.basescan.org/tx/0x660fb33c630d72ceb7c6ec529cacb1e13adb01c1457d4dc0b164eb363fd23168) |
 | 5 | Mandates cannot overlap (buyer 3600, seller 4300) | 3 | expired, nothing disclosed | [`0xe71e8eac…`](https://sepolia.basescan.org/tx/0xe71e8eac6e961eaf494b727fbc5a07c2353032cec3fdbb5ec23dc92d7fcce580) |
 

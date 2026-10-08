@@ -489,7 +489,7 @@ export default function Page() {
                 <IdentificationBadge size={22} weight="light" className="icon" />
                 <div>
                   <h3>Team</h3>
-                  <p>The founder will build Sealed full-time after the event.</p>
+                  <p>Kevin Soto Burgos, founder, will build Sealed full-time after the event.</p>
                 </div>
               </li>
             </ul>
@@ -511,7 +511,7 @@ export default function Page() {
                 <h3>The referee is trusted with privacy</h3>
                 <p>
                   It sees both offers each round. It cannot forge or alter a deal, because settlement needs both agents&apos;
-                  signatures over the exact pair of hashes. The demo referee runs on our own machine, in the same process as both agents; the production path
+                  signatures over the exact pair of hashes. In negotiation #8 the referee ran as its own process, holding no agent key, and reached each agent over HTTP; it still sees both numbers. The production path
                   is an attested TEE or threshold encryption.
                 </p>
               </div>

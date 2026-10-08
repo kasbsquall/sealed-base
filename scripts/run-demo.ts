@@ -5,7 +5,7 @@ import { NegotiatorAgent, type Mandate } from "../agents/negotiator/negotiator";
 import { ClearingRelay } from "../agents/relay/clearingRelay";
 import { LocalPartyWallet } from "../agents/wallets/partyWallet";
 import { OpenAICompatibleClient, llmConfigFromEnv } from "../agents/llm/client";
-import { API_TERMS } from "../agents/x402/deal";
+import { MAX_ROUNDS, REFERENCE, SCENARIOS, TERMS, UNIT, type ScenarioName } from "./demo-config";
 
 /**
  * Runs the two demo negotiations on a live network with real LLM agents:
@@ -23,16 +23,6 @@ import { API_TERMS } from "../agents/x402/deal";
  *   DEMO_SCENARIOS=deal npx hardhat run ...     (run only one)
  */
 
-const TERMS = API_TERMS;
-const UNIT = "US cents per 1,000 API calls";
-const REFERENCE = 4000n;
-const MAX_ROUNDS = 3;
-
-const SCENARIOS = {
-  deal: { buyerLimit: 4300n, sellerLimit: 4100n, windowSeconds: 900 },
-  "no-deal": { buyerLimit: 3600n, sellerLimit: 4300n, windowSeconds: 150 },
-} as const;
-type ScenarioName = keyof typeof SCENARIOS;
 
 async function main() {
   const state = JSON.parse(fs.readFileSync(`deployments/${network.name}.json`, "utf8"));

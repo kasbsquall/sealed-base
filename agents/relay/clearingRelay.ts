@@ -1,7 +1,8 @@
 import { Contract, type BaseWallet } from "ethers";
 import { commitmentHash, type SealedDomain } from "../sealed/commitment";
 import { baseFees } from "../sealed/fees";
-import type { Decision, NegotiatorAgent, Reveal } from "../negotiator/negotiator";
+import type { Decision, Reveal } from "../negotiator/negotiator";
+import type { Party } from "./party";
 
 /**
  * The clearing relay runs the rounds of a negotiation between two agents.
@@ -70,8 +71,8 @@ export interface NegotiationRecord {
 }
 
 export interface NegotiationRequest {
-  buyer: { agent: NegotiatorAgent; agentId: bigint };
-  seller: { agent: NegotiatorAgent; agentId: bigint };
+  buyer: { agent: Party; agentId: bigint };
+  seller: { agent: Party; agentId: bigint };
   termsSchema: string;
   policy: Policy;
   maxRounds: number;
@@ -175,7 +176,7 @@ export class ClearingRelay {
       request.seller.agent.commit(negotiationId, sellerIndex),
     ]);
 
-    const reveals = { buyer: request.buyer.agent.reveal(), seller: request.seller.agent.reveal() };
+    const reveals = { buyer: await request.buyer.agent.reveal(), seller: await request.seller.agent.reveal() };
     const onChain = await this.waitForCommitIndices(negotiationId, buyerIndex, sellerIndex);
     this.checkReveal(negotiationId, reveals.buyer, onChain.buyerCommitment, Number(onChain.buyerCommitIndex));
     this.checkReveal(negotiationId, reveals.seller, onChain.sellerCommitment, Number(onChain.sellerCommitIndex));
