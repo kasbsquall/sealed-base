@@ -28,6 +28,7 @@ export interface Settlement {
 
 const ABORTED = "Payment creation aborted: ";
 const TX_HASH = /^0x[0-9a-fA-F]{64}$/;
+const PROBLEM_EXCERPT = 300;
 
 /**
  * Returns why a seller's settlement report cannot count as a payment by this
@@ -76,7 +77,11 @@ export function createBuyerClient(privateKey: `0x${string}`, deal: Deal) {
       throw error;
     }
     // Only a successful paid response carries a settlement header.
-    if (!response.ok) return { url, paid: false, status: response.status };
+    if (!response.ok) {
+      // A rejected payment comes back as a 402 whose body says why (for example, the facilitator's invalidReason).
+      const body = (await response.text().catch(() => "")).slice(0, PROBLEM_EXCERPT);
+      return { url, paid: false, status: response.status, ...(body ? { problem: body } : {}) };
+    }
 
     let settlement: Settlement;
     try {

@@ -88,9 +88,15 @@ export default function Page() {
       links: [{ label: `Settle ${short(deal.settleTx!)}`, href: txUrl(deal.settleTx!) }],
     },
     {
+      kind: "budget",
+      title: `A budget of ${usdc(payments.budget.permission.allowance)} a day`,
+      detail: "The principal's USDC sits in a Base Account. It grants the buyer agent a Spend Permission, and the agent holds no USDC of its own.",
+      links: [{ label: `Permission ${short(payments.budget.approveTx)}`, href: txUrl(payments.budget.approveTx) }],
+    },
+    {
       kind: "pay",
       title: `Paid ${paidCalls.length} calls at ${usdc(payments.usdcPerCall)} in USDC`,
-      detail: "The buyer pays the seller's API per call over x402, at the settled price read from the contract.",
+      detail: "Before each call the agent draws its price from the Base Account, then pays the seller's API over x402 at the settled price.",
       links: paidCalls.map((c, i) => ({ label: `Payment ${i + 1}`, href: txUrl(c.transaction!) })),
     },
     ...(refused
@@ -99,6 +105,16 @@ export default function Page() {
             kind: "refuse" as const,
             title: `Refused a call at ${refusalText(refused.refusal!, payments.usdcPerCall).match(/\$[0-9.]+/)?.[0] ?? "another price"}`,
             detail: "The seller asked for more than the deal. The buyer refused before signing anything, so no money moved.",
+            links: [],
+          },
+        ]
+      : []),
+    ...(payments.budget.overBudgetDraw
+      ? [
+          {
+            kind: "refuse" as const,
+            title: "Base refused a fourth draw",
+            detail: `Drawing one more call would pass the daily budget. The SpendPermissionManager rejects it: ${payments.budget.overBudgetDraw.reason}, checked without a transaction.`,
             links: [],
           },
         ]
@@ -219,8 +235,9 @@ export default function Page() {
             </div>
             <p>
               Negotiation #{payments.negotiationId} settled at {dollars(payments.settledPrice)} per 1,000 calls. The buyer
-              agent then paid the seller&apos;s API per call over x402, in USDC on Base Sepolia. Before signing, it checks the
-              price and the payee against the settled deal on-chain, and refuses anything else.
+              agent then paid the seller&apos;s API per call over x402, in USDC on Base Sepolia, drawing each call&apos;s price
+              from its principal&apos;s Base Account under a daily Spend Permission. Before signing, it checks the price and the
+              payee against the settled deal on-chain, and refuses anything else.
             </p>
           </div>
           <div className="payments">
@@ -233,13 +250,19 @@ export default function Page() {
                 USDC, read from negotiation #{payments.negotiationId}: {dollars(payments.settledPrice)} per 1,000 calls
               </div>
               <dl className="pay-balance">
-                <dt className="eyebrow">Seller&apos;s USDC balance</dt>
+                <dt className="eyebrow">Seller received</dt>
                 <dd>
-                  {usdc(payments.sellerUsdcBefore)} <ArrowRight size={12} weight="light" aria-label="to" />{" "}
-                  {usdc(payments.sellerUsdcAfter)}
+                  {usdc(BigInt(payments.sellerUsdcAfter) - BigInt(payments.sellerUsdcBefore))}
                   <span className="note">
                     {" "}
-                    after {paidCalls.length} paid {paidCalls.length === 1 ? "call" : "calls"}
+                    for {paidCalls.length} paid {paidCalls.length === 1 ? "call" : "calls"}
+                  </span>
+                </dd>
+                <dt className="eyebrow">Paid from</dt>
+                <dd className="pay-source">
+                  <ExtLink href={addressUrl(payments.budget.baseAccount)}>Base Account {short(payments.budget.baseAccount)}</ExtLink>
+                  <span className="note">
+                    Spend Permission of {usdc(payments.budget.permission.allowance)} a day; a fourth draw was refused
                   </span>
                 </dd>
               </dl>
@@ -405,7 +428,8 @@ export default function Page() {
                 <h3>Check the payments</h3>
                 <p>
                   The script reads the price and both wallets from the contract, confirms each USDC transfer on Base
-                  Sepolia, and checks that no other payment from the buyer to the seller happened during the run.
+                  Sepolia, checks that no other payment from the buyer to the seller happened during the run, and checks
+                  that every draw from the Base Account stayed inside its Spend Permission.
                 </p>
               </div>
               <div className="check-body">

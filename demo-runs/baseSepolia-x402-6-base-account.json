@@ -1,0 +1,76 @@
+{
+  "kind": "x402-payments",
+  "network": "baseSepolia",
+  "chainId": 84532,
+  "contract": "0x0C0E12C9C77FAcDa9302514A818DF232346e773A",
+  "negotiationId": "6",
+  "settledPrice": "4200",
+  "priceUnit": "US cents per 1,000 API calls",
+  "usdcPerCall": "42000",
+  "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+  "buyer": "0x9DE7DeEcCfFf2CA1958E48C3038b85e7130Bd240",
+  "seller": "0xB69841BBe445D059968f4949E5312B182eFF4726",
+  "facilitator": "https://x402.org/facilitator",
+  "note": "The buyer pays the seller's API per call over x402. Price and payee are read from the settled negotiation; the buyer refuses any other terms.",
+  "finishedAt": "2026-10-08T18:43:43.657Z",
+  "complete": true,
+  "startBlock": 47858373,
+  "endBlock": 47858380,
+  "calls": [
+    {
+      "url": "http://127.0.0.1:4021/market-data",
+      "paid": true,
+      "status": 200,
+      "transaction": "0x0ab24db044cbd2585c5685ac29265e1b016124967fee1ffe09264860e8863fa3"
+    },
+    {
+      "url": "http://127.0.0.1:4021/market-data",
+      "paid": true,
+      "status": 200,
+      "transaction": "0x03a806901781845c367fe0f4c1f0e317e2dd009218fd44e10fe67bea5504bb60"
+    },
+    {
+      "url": "http://127.0.0.1:4021/market-data",
+      "paid": true,
+      "status": 200,
+      "transaction": "0x9064190fda4ac35c74959cdb38ed49f077999db077446e4ed1c959318b418026"
+    },
+    {
+      "url": "http://127.0.0.1:4021/market-data-surge",
+      "paid": false,
+      "status": 402,
+      "refusal": "asks 84000 atomic USDC per call; negotiation 6 settled at 42000"
+    }
+  ],
+  "sellerUsdcBefore": "378000",
+  "sellerUsdcAfter": "504000",
+  "budget": {
+    "kind": "base-account-spend-permission",
+    "note": "The principal's USDC sits in a Base Account. The agent may draw at most the allowance per period, enforced by Base's SpendPermissionManager; the agent held no USDC of its own before the first draw.",
+    "baseAccount": "0x3F938cc093B02A4976238009C686aB1776140928",
+    "spendPermissionManager": "0xf85210B21cC50302F477BA56686d2019dC9b67Ad",
+    "permission": {
+      "account": "0x3F938cc093B02A4976238009C686aB1776140928",
+      "spender": "0x9DE7DeEcCfFf2CA1958E48C3038b85e7130Bd240",
+      "token": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+      "allowance": "126000",
+      "period": 86400,
+      "start": 1791484970,
+      "end": 1794077030,
+      "salt": "1791485030",
+      "extraData": "0x"
+    },
+    "fundTx": "0xca84b7386b90268a6a8128d944f2055a1d7e9b7eed68db6c36345935ee1bcb4e",
+    "approveTx": "0x7bcf00165932ce9be1f81e6fb1a5cec299f68055a9cdd95390821c0f9e3a7573",
+    "draws": [
+      "0x9dc0ded4389f5ca93a654bc24b69074baaedee683a0a99a1549cd08e528d8161",
+      "0x48eca634eb7a6440303305aa6c0309004681f53fadc61c1d854844f23a3b5d37",
+      "0x85d1958ef17e9d883923b36e6d1a4505287f1314bb8abe03db5e22e1d385720e"
+    ],
+    "overBudgetDraw": {
+      "simulated": true,
+      "reverted": true,
+      "reason": "ExceededSpendPermission(168000, 126000)"
+    }
+  }
+}

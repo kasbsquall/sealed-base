@@ -96,3 +96,17 @@ load-balanced RPC node (fixed in the relay). Both were later closed with `expire
 | surge | $0.084 | refused by the buyer before signing | none |
 
 `npm run verify:payments -- demo-runs/baseSepolia-x402-6.json` checks each transfer on-chain against the price and wallets read from the contract, and checks that no other buyer-to-seller USDC transfer happened during the run or the five minutes after it.
+
+#### Paid from a Base Account
+
+`BUDGET=base-account npm run pay:x402`. The principal's USDC sits in a Base Account (Coinbase Smart Wallet v1.1, [`0x3F938cc093B02A4976238009C686aB1776140928`](https://sepolia.basescan.org/address/0x3F938cc093B02A4976238009C686aB1776140928)). It granted the buyer agent a Spend Permission on Base's SpendPermissionManager ([`0xf85210B2…`](https://sepolia.basescan.org/address/0xf85210B21cC50302F477BA56686d2019dC9b67Ad)) of $0.126 per day in [`0x7bcf0016…`](https://sepolia.basescan.org/tx/0x7bcf00165932ce9be1f81e6fb1a5cec299f68055a9cdd95390821c0f9e3a7573). The agent held no USDC of its own; before each call it drew the call's price, then paid. Transcript: [`demo-runs/baseSepolia-x402-6-base-account.json`](../demo-runs/baseSepolia-x402-6-base-account.json).
+
+| Call | Draw from the Base Account | x402 payment to the seller |
+|---|---|---|
+| 1 | [`0x9dc0ded4…`](https://sepolia.basescan.org/tx/0x9dc0ded4389f5ca93a654bc24b69074baaedee683a0a99a1549cd08e528d8161) | [`0x0ab24db0…`](https://sepolia.basescan.org/tx/0x0ab24db044cbd2585c5685ac29265e1b016124967fee1ffe09264860e8863fa3) |
+| 2 | [`0x48eca634…`](https://sepolia.basescan.org/tx/0x48eca634eb7a6440303305aa6c0309004681f53fadc61c1d854844f23a3b5d37) | [`0x03a80690…`](https://sepolia.basescan.org/tx/0x03a806901781845c367fe0f4c1f0e317e2dd009218fd44e10fe67bea5504bb60) |
+| 3 | [`0x85d1958e…`](https://sepolia.basescan.org/tx/0x85d1958ef17e9d883923b36e6d1a4505287f1314bb8abe03db5e22e1d385720e) | [`0x9064190f…`](https://sepolia.basescan.org/tx/0x9064190fda4ac35c74959cdb38ed49f077999db077446e4ed1c959318b418026) |
+| surge | none | refused by the buyer before signing |
+| 4th draw | rejected: `ExceededSpendPermission(168000, 126000)` (simulated, no transaction) | none |
+
+Earlier attempts on 2026-10-08 that stopped part-way (a stale RPC read, then a draw that ran out of gas on a low estimate) left their transactions on-chain; only the complete run above is the reference.

@@ -1,6 +1,8 @@
 import fs from "fs";
-import { Interface, JsonRpcProvider, zeroPadValue } from "ethers";
+import { Contract, Interface, JsonRpcProvider, zeroPadValue } from "ethers";
 import { MAX_PAYMENT_WINDOW_SECONDS, readDeal, USDC_BASE_SEPOLIA } from "../agents/x402/deal";
+import { SPEND_PERMISSION_MANAGER } from "../agents/x402/baseAccount";
+import { getLogsChunked } from "./logs";
 
 /**
  * Independent check of an x402 payment run against Base Sepolia. Needs no
@@ -13,7 +15,11 @@ import { MAX_PAYMENT_WINDOW_SECONDS, readDeal, USDC_BASE_SEPOLIA } from "../agen
  *     negotiation's buyer to its seller in USDC;
  *   - no other buyer-to-seller USDC transfer happened in that range or within
  *     the longest window a signed payment stays valid, so a refused call was
- *     not paid behind the transcript's back.
+ *     not paid behind the transcript's back;
+ *   - when the run drew its money from a Base Account, the spend permission is
+ *     approved on Base's SpendPermissionManager, its daily allowance covers
+ *     exactly the paid calls, and every draw moved exactly one call's price
+ *     from the principal's Base Account to the agent.
  *
  *   npx tsx scripts/verify-payments.ts demo-runs/baseSepolia-x402-6.json
  */
@@ -26,6 +32,8 @@ const TRANSFER = new Interface(["event Transfer(address indexed from, address in
 const TRANSFER_TOPIC = TRANSFER.getEvent("Transfer")!.topicHash;
 
 const same = (a: string, b: string) => a.toLowerCase() === b.toLowerCase();
+const SP = "(address account,address spender,address token,uint160 allowance,uint48 period,uint48 start,uint48 end,uint256 salt,bytes extraData)";
+const SPM_ABI = [`function isApproved(${SP} spendPermission) view returns (bool)`];
 
 async function main() {
   const file = process.argv[2] ?? process.env.RUN;
@@ -78,12 +86,12 @@ async function main() {
   if (latest < scanTo) {
     check(false, `the payment window has closed (wait ${scanTo - latest} more blocks and run again)`);
   } else {
-    const transfers = await provider.getLogs({
-      address: USDC_BASE_SEPOLIA,
-      fromBlock: startBlock,
-      toBlock: scanTo,
-      topics: [TRANSFER_TOPIC, zeroPadValue(deal.buyer, 32), zeroPadValue(deal.seller, 32)],
-    });
+    const transfers = await getLogsChunked(
+      provider,
+      { address: USDC_BASE_SEPOLIA, topics: [TRANSFER_TOPIC, zeroPadValue(deal.buyer, 32), zeroPadValue(deal.seller, 32)] },
+      startBlock,
+      scanTo,
+    );
     const unrecorded = transfers.filter((log) => !hashes.has(log.transactionHash.toLowerCase()));
     check(
       transfers.length === paid.length && unrecorded.length === 0,
@@ -93,6 +101,28 @@ async function main() {
 
   const refused = run.calls.filter((c: { refusal?: string }) => c.refusal);
   check(refused.length > 0 && !refused.some((c: { transaction?: string }) => c.transaction), "the over-priced call was refused with no transaction");
+
+  if (run.budget) {
+    const b = run.budget;
+    const permission = { ...b.permission, allowance: BigInt(b.permission.allowance), salt: BigInt(b.permission.salt) };
+    check(same(b.spendPermissionManager, SPEND_PERMISSION_MANAGER), "budget uses Base's SpendPermissionManager");
+    check(same(permission.spender, deal.buyer) && same(permission.token, USDC_BASE_SEPOLIA), "the permission lets the negotiation's buyer spend USDC");
+    check(permission.allowance === deal.usdcPerCall * BigInt(paid.length), `daily allowance ${permission.allowance} covers exactly the ${paid.length} paid calls`);
+    const spm = new Contract(SPEND_PERMISSION_MANAGER, SPM_ABI, provider);
+    check(await spm.isApproved(permission), "the permission is approved on-chain");
+    const approval = await provider.getTransactionReceipt(b.approveTx);
+    check(!!approval && approval.status === 1 && same(approval.to ?? "", SPEND_PERMISSION_MANAGER), `approval ${b.approveTx} succeeded`);
+    check(b.draws.length === paid.length, `${b.draws.length} draws for ${paid.length} paid calls`);
+    for (const [i, hash] of (b.draws as string[]).entries()) {
+      const receipt = await provider.getTransactionReceipt(hash);
+      const moved = receipt?.status === 1 && receipt.logs
+        .filter((log) => same(log.address, USDC_BASE_SEPOLIA))
+        .map((log) => TRANSFER.parseLog(log))
+        .some((t) => t?.name === "Transfer" && same(t.args.from, permission.account) && same(t.args.to, deal.buyer) && t.args.value === deal.usdcPerCall);
+      check(!!moved, `draw ${i + 1}: USDC ${deal.usdcPerCall} from the Base Account to the agent in ${hash}`);
+    }
+    check(b.overBudgetDraw?.reverted === true, `transcript records one more draw rejected in simulation: ${b.overBudgetDraw?.reason ?? "not recorded"}`);
+  }
 
   console.log(failures ? `\n${failures} check(s) failed.` : "\nEvery check passed.");
   if (failures) process.exitCode = 1;

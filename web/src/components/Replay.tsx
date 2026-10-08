@@ -10,11 +10,12 @@ import {
   Prohibit,
   Receipt,
   SealCheck,
+  Wallet,
   type Icon,
 } from "@phosphor-icons/react";
 import { ExtLink } from "./ExtLink";
 
-export type StepKind = "admit" | "miss" | "cross" | "settle" | "pay" | "refuse";
+export type StepKind = "admit" | "miss" | "cross" | "settle" | "budget" | "pay" | "refuse";
 
 export interface ReplayStep {
   kind: StepKind;
@@ -28,6 +29,7 @@ const ICONS: Record<StepKind, Icon> = {
   miss: ArrowsOutLineHorizontal,
   cross: Intersect,
   settle: SealCheck,
+  budget: Wallet,
   pay: Receipt,
   refuse: Prohibit,
 };

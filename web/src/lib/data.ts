@@ -9,7 +9,7 @@ import path from "path";
 
 const ROOT = path.join(process.cwd(), "..");
 const FEATURED = ["baseSepolia-deal-6.json", "baseSepolia-no-deal-7.json"];
-const PAYMENTS = "baseSepolia-x402-6.json";
+const PAYMENTS = "baseSepolia-x402-6-base-account.json";
 
 export interface Side {
   offer: string;
@@ -79,6 +79,14 @@ export interface Payments {
   calls: PaymentCall[];
   sellerUsdcBefore: string;
   sellerUsdcAfter: string;
+  budget: {
+    baseAccount: string;
+    spendPermissionManager: string;
+    permission: { allowance: string; period: number };
+    approveTx: string;
+    draws: string[];
+    overBudgetDraw?: { reason: string };
+  };
   file: string;
 }
 

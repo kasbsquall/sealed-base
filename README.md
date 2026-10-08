@@ -76,6 +76,10 @@ ERC-8004 canonical registries on Base        (read only, not deployed by us)
         v
   x402 payment            the buyer pays the seller's API per call in USDC on Base,
                           at the settled price, and refuses any other terms
+        |
+        v
+  Base Account budget     the money comes from the principal's Base Account; a
+                          Spend Permission caps what the agent can draw per day
 ```
 
 ### The mandate never leaves the operator's machine
@@ -90,11 +94,13 @@ See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/ADDRESSES.md](docs/AD
 
 Negotiation #6 settled a price for API access: 4200 US cents per 1,000 calls, which is 42,000 atomic USDC per call. The seller's API ([`agents/x402/sellerService.ts`](agents/x402/sellerService.ts)) charges per call over x402, with the price and the payee read from the settled negotiation on-chain. The buyer's client ([`agents/x402/buyerClient.ts`](agents/x402/buyerClient.ts)) reads the same deal and, before signing anything, compares it with the server's 402 requirement. A different amount, payee, asset or network aborts the payment. The demo seller also exposes a surge endpoint at twice the price, and the buyer refuses it.
 
-In the live run the buyer paid three calls at $0.042 each and refused the surge call at $0.084; the seller's USDC balance went from $0 to $0.126. The transactions are in [docs/ADDRESSES.md](docs/ADDRESSES.md).
+The money does not sit in the agent's wallet. It sits in the principal's **Base Account**, which grants the buyer agent a **Spend Permission** through Base's SpendPermissionManager: at most $0.126 a day, exactly three calls. Before each call the agent draws that call's price, then pays. A compromised agent can still only spend what the principal allowed ([`agents/x402/baseAccount.ts`](agents/x402/baseAccount.ts)).
+
+In the live run the principal's Base Account granted the permission in [`0x7bcf0016…`](https://sepolia.basescan.org/tx/0x7bcf00165932ce9be1f81e6fb1a5cec299f68055a9cdd95390821c0f9e3a7573); the agent drew $0.042 three times and paid three calls, refused the surge call at $0.084, and a fourth draw was rejected by Base with `ExceededSpendPermission(168000, 126000)`. The transactions are in [docs/ADDRESSES.md](docs/ADDRESSES.md).
 
 ```bash
-npm run pay:x402                                            # needs Base Sepolia USDC on the buyer wallet
-npm run verify:payments -- demo-runs/baseSepolia-x402-6.json
+BUDGET=base-account npm run pay:x402                        # the agent draws from a Base Account
+npm run verify:payments -- demo-runs/baseSepolia-x402-6-base-account.json
 ```
 
 ## Running it
@@ -133,7 +139,7 @@ Everything below is on Base Sepolia and readable without a wallet.
 2. **They read the real ERC-8004 registries.** `ReputationGate` was deployed pointing at the canonical Identity and Reputation registries (`0x8004A818…`, `0x8004B663…`), and `npm run check:registries` calls them live.
 3. **A negotiation settled on-chain without either offer appearing before settlement.** Open the two commit transactions of negotiation #1, [`0xa62210cd…`](https://sepolia.basescan.org/tx/0xa62210cd8ab8d1288f80b7df487de2a0bf3f347ca7e9eb9123e01e6d75a043dc) and [`0x1d6f6ad1…`](https://sepolia.basescan.org/tx/0x1d6f6ad16a7b9c1272ce360949d0e702c2ba1c28435cfeff8c8ddbb3e3ae49b3): each carries a 32-byte hash and nothing else. Both offers become public together, only in the settlement [`0x3c8a95a1…`](https://sepolia.basescan.org/tx/0x3c8a95a18eb705f34a22e76be6c813b545ff0602ebd3c99e695d22964cbe35c9).
 4. **Two AI agents negotiated on Base Sepolia with a local model.** In [negotiation #6](https://sepolia.basescan.org/tx/0x772b8170d9c247d73fa1e3daa93541024c855a8a1d0f2bcbe101f6fad8830a5e) rounds 1 and 2 did not cross (4100 against 4200, then 4100 against 4150); in round 3 both went to their limits, the numbers crossed, and the deal settled at the midpoint, 4200. In [negotiation #7](https://sepolia.basescan.org/tx/0x9a83c35c6dcd7f6081f3bd2ec8bec14784baa7bf59e5bc72a4b4659dea5590be) the mandates could not overlap: the model tried to open past each principal's limit, code held both agents at their limits, three rounds did not cross, and the negotiation expired with neither number on-chain. The transcripts are in [`demo-runs/`](demo-runs), and `RUN=demo-runs/baseSepolia-deal-6.json npm run verify:run` re-derives every on-chain hash from them. Negotiations #3 and #5 are earlier runs of the same scenarios with the previous prompt.
-5. **The settled price is what gets paid.** After negotiation #6 the buyer paid the seller's API three times over x402, 42,000 atomic USDC per call, in [`0x55342ca1…`](https://sepolia.basescan.org/tx/0x55342ca1eaf4773030fbfd144ebd90cdb8a2b70fc7a575f23e1594dcb6e30d60), [`0x75cd44e0…`](https://sepolia.basescan.org/tx/0x75cd44e07f7ea2855061d241b9cd9882611879728a52ddb8eab70b518c1233e4) and [`0x6ada6d11…`](https://sepolia.basescan.org/tx/0x6ada6d1196a1c5bb93fddc856f1b451f1ea1ef0c93b72f375e57722af88f5f17). A fourth call priced at double was refused before anything was signed. `npm run verify:payments -- demo-runs/baseSepolia-x402-6.json` checks each transfer against the price and wallets read from the contract.
+5. **The settled price is what gets paid, from a capped budget.** After negotiation #6 the buyer drew $0.042 from its principal's Base Account and paid the seller's API over x402, three times: [`0x0ab24db0…`](https://sepolia.basescan.org/tx/0x0ab24db044cbd2585c5685ac29265e1b016124967fee1ffe09264860e8863fa3), [`0x03a80690…`](https://sepolia.basescan.org/tx/0x03a806901781845c367fe0f4c1f0e317e2dd009218fd44e10fe67bea5504bb60), [`0x9064190f…`](https://sepolia.basescan.org/tx/0x9064190fda4ac35c74959cdb38ed49f077999db077446e4ed1c959318b418026). A call priced at double was refused before anything was signed, and a fourth draw was rejected by Base's SpendPermissionManager. `npm run verify:payments -- demo-runs/baseSepolia-x402-6-base-account.json` checks every payment and every draw against the contract.
 6. **The demo reputation is seeded, and labelled that way.** Agents 9341, 9342 and 9343 and their reviewers were created by `scripts/seed-demo.ts`. See [docs/ADDRESSES.md](docs/ADDRESSES.md).
 
 ## Business model
@@ -157,6 +163,7 @@ This is the plan after the event; the demo charges no fee.
 | First live negotiation on Base Sepolia (scripted) | done, settled on-chain |
 | Negotiator agent on a local model, clearing relay | done, two live negotiations on Base Sepolia |
 | Payment at the settled price over x402 | done, three live payments on Base Sepolia and one refused overcharge |
+| Agent budget in a Base Account with a Spend Permission | done, three draws inside the cap and a fourth rejected by Base |
 | Judge page with both negotiations and the payment | done, live at [sealed-base.vercel.app](https://sealed-base.vercel.app) |
 
 ## Built before and during the hackathon

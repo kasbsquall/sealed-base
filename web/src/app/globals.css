@@ -1335,3 +1335,14 @@ pre {
     grid-template-columns: minmax(0, 1fr);
   }
 }
+
+.pay-source {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.35rem;
+  font-size: var(--text-sm);
+}
+.pay-balance dd + dt {
+  margin-top: 1.25rem;
+}
