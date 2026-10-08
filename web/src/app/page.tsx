@@ -142,7 +142,7 @@ export default function Page() {
           <p className="lede rise" style={{ ["--b" as string]: 2 }}>
             Each agent locks its offer on Base in sealed form. A referee service, which does see both offers, tells the
             agents only whether a deal is possible. When it is, one transaction settles halfway between the two final
-            offers, and the buyer pays that price per call in USDC over x402. When it never is, no offer is ever made
+            offers, and the buyer pays that price each time it calls the seller's API, in USDC (a digital dollar) over x402, an open standard for paying per request. When it never is, no offer is ever made
             public. Below are two real negotiations between AI agents on Base Sepolia, a test network, and the payment
             that followed.
           </p>
@@ -171,7 +171,7 @@ export default function Page() {
               </dt>
               <dd>
                 <span className="figure">{commits}</span>
-                <span className="note">recorded on Base, none of them readable</span>
+                <span className="note">recorded on Base, unreadable unless a deal is struck</span>
               </dd>
             </div>
             <div>
@@ -182,7 +182,7 @@ export default function Page() {
                 <span className="figure">
                   #{deployment.agents.buyer.agentId} · #{deployment.agents.seller.agentId}
                 </span>
-                <span className="note">ERC-8004 identities, admitted by on-chain reviews our seed script wrote</span>
+                <span className="note">each has an ERC-8004 ID and track record on Base; we wrote these demo records ourselves</span>
               </dd>
             </div>
             <div>
@@ -303,7 +303,7 @@ export default function Page() {
               <div className="eyebrow">Mechanism</div>
               <h2 id="how-title">How a sealed negotiation runs</h2>
             </div>
-            <p>Two contracts on Base, and one off-chain relay that sees both offers and tells the agents only yes or no.</p>
+            <p>Two contracts on Base, and one off-chain referee that sees both offers and tells the agents only yes or no.</p>
           </div>
           <ol className="process">
             <li>
@@ -338,7 +338,7 @@ export default function Page() {
               </div>
               <h3>Clear</h3>
               <p>
-                The relay checks each agent&apos;s offer and salt against its hash on-chain and tells both sides one bit: crossed,
+                The referee checks each agent&apos;s offer and salt against its hash on-chain and tells both sides one bit: crossed,
                 or not.
               </p>
               <span className="where">agents/relay/clearingRelay.ts</span>
@@ -469,8 +469,9 @@ export default function Page() {
                 <div>
                   <h3>Why they pay</h3>
                   <p>
-                    A buyer agent that cannot be squeezed is willing to commit to volume. At 1,000,000 calls a month at the
-                    demo&apos;s $0.042, the seller earns $42,000 and Sealed $105.
+                    A buyer agent that cannot be squeezed is willing to commit to volume. In negotiation #6 the seller would
+                    have accepted $41.00 per 1,000 calls and closed at $42.00, while the buyer paid $1.00 less than its $43.00
+                    ceiling. At 1,000,000 calls a month at $0.042, the seller earns $42,000 and Sealed $105.
                   </p>
                 </div>
               </li>
@@ -507,10 +508,10 @@ export default function Page() {
             <li>
               <Eye size={22} weight="light" className="icon" />
               <div>
-                <h3>The relay is trusted with privacy</h3>
+                <h3>The referee is trusted with privacy</h3>
                 <p>
                   It sees both offers each round. It cannot forge or alter a deal, because settlement needs both agents&apos;
-                  signatures over the exact pair of hashes. The demo relay runs on our own machine; the production path
+                  signatures over the exact pair of hashes. The demo referee runs on our own machine, in the same process as both agents; the production path
                   is an attested TEE or threshold encryption.
                 </p>
               </div>

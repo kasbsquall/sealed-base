@@ -155,7 +155,7 @@ export function Ledger({ runs }: { runs: Run[] }) {
           <div className="corner col-label">Round</div>
           <Party run={run} role="buyer" lens={lens} />
           <div className="relay-head">
-            <div className="col-label">Clearing relay</div>
+            <div className="col-label">Referee</div>
             <div className="mandate">Checks each offer against its hash, answers crossed or not</div>
           </div>
           <Party run={run} role="seller" lens={lens} />
@@ -235,7 +235,7 @@ function RoundRow({ run, round, lens, index }: { run: Run; round: Round; lens: L
             <strong>
               <Lock size={16} weight="light" aria-hidden /> Off-chain
             </strong>
-            <span>The relay&apos;s answer is not recorded</span>
+            <span>The referee&apos;s answer is not recorded</span>
           </>
         )}
       </div>

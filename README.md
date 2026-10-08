@@ -22,7 +22,7 @@ ERC-8004 already answers whether an agent can be trusted: its Identity and Reput
 
 Two agents, each with an ERC-8004 identity and reputation on Base, reach an agreement through a contract that never learns either position until both are locked, and never learns either position at all if the deal does not happen.
 
-1. **Admission.** `ReputationGate` checks both agents against an explicit, on-chain policy read from the canonical ERC-8004 Reputation Registry. It answers one bit: does this agent clear the bar. It never exposes the agent's history to its counterparty.
+1. **Admission.** `ReputationGate` checks both agents against an explicit, on-chain policy read from the canonical ERC-8004 Reputation Registry. It answers one bit: does this agent clear the bar. The registry itself is public, so the gate saves the counterparty a lookup rather than hiding anything.
 2. **Commitment.** Each agent submits a salted, domain-separated hash of its position. Counter-offers are new commitments, and the same number committed twice produces two unrelated hashes, so an observer watching a sequence of updates cannot tell whether an agent moved or held.
 3. **Atomic settlement.** There is no reveal phase. `settle` consumes both offers, both salts and both EIP-712 authorizations in a single transaction. Either both positions land on-chain in the same instant or neither ever does.
 4. **Silent failure.** If the positions do not clear, nothing is submitted and the negotiation expires. The chain records that two agents talked and did not trade. It never records what either one asked for.
@@ -51,6 +51,8 @@ So neither the chain, nor the counterparty, nor the model provider ever learns a
 
 Timing metadata is public. The mempool shows that an address committed and when. It never shows what.
 
+Two more limits a reviewer will find in the code. `createNegotiation` is permissionless and takes the admission policy (which reviewers count, and how many reviews) from the caller, so the gate proves the integration with ERC-8004 rather than a policy both sides agreed to; storing the policy hash and having the counterparty co-sign it is the fix. And the NatSpec at the top of `SealedNegotiation.sol` describes agents exchanging reveals with each other, which predates the clearing relay; the contract is left unchanged because it is deployed and verified byte for byte, and this README describes the current flow.
+
 
 ## Architecture
 
@@ -60,7 +62,7 @@ ERC-8004 canonical registries on Base        (read only, not deployed by us)
   ReputationRegistry    0x8004B663056A597Dffe9eCcC1965A193B7388713  (Base Sepolia)
         |
         v
-  ReputationGate.sol      admission policy, one bit out, history stays private
+  ReputationGate.sol      admission policy over the public registries, one bit out
         |
         v
   SealedNegotiation.sol   commitment, counter-offers, atomic settlement, silent expiry
@@ -148,7 +150,7 @@ This is the plan after the event; the demo charges no fee.
 
 - **Who pays.** The seller, 0.25% of the value paid at a price settled through Sealed.
 - **First customers.** API sellers that already charge per call over x402. Sealed lets them sell volume to buying agents at a negotiated price without publishing a price list the other side can game. A buyer agent that cannot be squeezed is willing to commit to volume.
-- **Illustration.** At 1,000,000 calls a month at the demo's $0.042 per call, the seller earns $42,000 and Sealed $105.
+- **What the seller gains.** In negotiation #6 the seller would have accepted $41.00 per 1,000 calls and closed at $42.00, while the buyer paid $1.00 less than its $43.00 ceiling. At 1,000,000 calls a month at $0.042 per call, the seller earns $42,000 and Sealed $105. The fee is not implemented in the contracts yet.
 - **Next, in order.** Move the referee (the clearing relay) into an attested enclave, code the fee into settlement, deploy on Base mainnet, and run a pilot with one x402 seller.
 - **Team.** The founder will build Sealed full-time after the event.
 
