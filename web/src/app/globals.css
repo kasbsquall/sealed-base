@@ -392,7 +392,8 @@ code,
 
 /* ---------- replay states: typed text and the stamp blank out; links stay, so focus is never lost ---------- */
 .is-blank .t,
-.is-blank .stamp {
+.is-blank .stamp,
+.is-blank .lk svg {
   opacity: 0;
 }
 .is-blank .ck path {
@@ -487,6 +488,11 @@ code,
   position: absolute;
   inset: 0 var(--set-r) var(--set-b) 0;
   overflow: hidden;
+}
+/* Copies behind show only their paper edge; their content appears when they come to the front. */
+.js .sheet.pos1 > *,
+.js .sheet.pos2 > * {
+  visibility: hidden;
 }
 .sheet.pos1 {
   z-index: 2;
@@ -815,7 +821,7 @@ main {
 }
 .sec {
   width: min(1180px, calc(100% - 32px));
-  margin: 150px auto 0;
+  margin: 96px auto 0;
   scroll-margin-top: 24px;
 }
 .sec-head {
@@ -1065,6 +1071,7 @@ main {
   margin: 0;
   width: 20px;
   height: 20px;
+  border-radius: 50%;
   border: 1.5px solid var(--print);
   background: color-mix(in oklab, var(--pp) 60%, var(--paper-w));
   display: grid;
@@ -1073,8 +1080,9 @@ main {
 }
 .lens input::after {
   content: "";
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
   background: var(--carbon);
   opacity: 0;
   transform: scale(0.5);
@@ -1615,22 +1623,29 @@ html:not(.js) .rec-panel + .rec-panel {
 }
 .cmd {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  align-items: start;
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: start;
   gap: 10px;
   margin-top: 12px;
-  padding: 10px 10px 10px 14px;
+  padding: 10px 12px;
   border: 1px solid var(--line);
   background: color-mix(in oklab, var(--print) 7%, var(--pp));
 }
 .cmd pre {
   margin: 0;
-  white-space: pre-wrap;
-  overflow-wrap: anywhere;
+  min-width: 0;
+  width: 100%;
+  white-space: pre;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+.cmd pre code {
+  overflow-wrap: normal;
 }
 .cmd code {
   font-size: var(--c-s);
   line-height: 1.6;
+  letter-spacing: -0.015em;
 }
 .copy {
   appearance: none;
@@ -1759,7 +1774,7 @@ html:not(.js) .rec-panel + .rec-panel {
 /* footer */
 .foot {
   width: min(1180px, calc(100% - 32px));
-  margin: 120px auto 0;
+  margin: 96px auto 0;
   padding: 26px 0 40px;
   border-top: 1px solid color-mix(in oklab, var(--on-desk) 22%, transparent);
   display: flex;
@@ -1804,7 +1819,8 @@ html:not(.js) .copy-tabs,
 html:not(.js) .replay-btn,
 html:not(.js) .otabs,
 html:not(.js) .live,
-html:not(.js) .copy {
+html:not(.js) .copy,
+html:not(.js) .js-only {
   display: none;
 }
 html:not(.js) .set {
@@ -2023,13 +2039,13 @@ html:not(.js) .sheet:not(.pos0) .f-body {
     order: 1;
     margin-top: 16px;
   }
-  .f-left .status {
-    order: 2;
-    margin-top: 10px;
-  }
   .f-right {
+    order: 2;
+    margin-top: 18px;
+  }
+  .f-left .status {
     order: 3;
-    margin-top: 22px;
+    margin-top: 14px;
   }
   .f-left .instr {
     order: 4;
@@ -2129,7 +2145,10 @@ html:not(.js) .sheet:not(.pos0) .f-body {
     min-width: 0;
   }
   .sec {
-    margin-top: 110px;
+    margin-top: 64px;
+  }
+  .foot {
+    margin-top: 64px;
   }
   .rb-top {
     grid-template-columns: minmax(0, 1fr);
@@ -2179,6 +2198,24 @@ html:not(.js) .sheet:not(.pos0) .f-body {
   }
   .copy {
     justify-self: start;
+  }
+}
+/* Under 768px the settlement and its stamp come before the round table, inside the first phone screen. */
+@media (max-width: 767px) {
+  .f-right {
+    display: flex;
+    flex-direction: column;
+  }
+  .f-right .settle {
+    order: -1;
+    padding-top: 0;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 12px;
+  }
+}
+@media (max-width: 640px) {
+  .settle .stamp-zone {
+    order: -1;
   }
 }
 @media (max-width: 359px) {

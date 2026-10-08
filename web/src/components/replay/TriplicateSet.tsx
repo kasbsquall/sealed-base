@@ -339,10 +339,18 @@ function ReplayButton({ id, describedBy }: { id: string; describedBy: string }) 
 
 function Status({ id }: { id: string }) {
   const text = useStatusText();
+  const { running, note, total } = useReplay();
+  const atRest = !running && !note;
   return (
     <p className="status" id={id}>
       <span className="lbl">Status</span>
-      <span>{text}</span>
+      {atRest ? (
+        <span>
+          All {total} steps on file.<span className="js-only"> Replay types them again.</span>
+        </span>
+      ) : (
+        <span>{text}</span>
+      )}
     </p>
   );
 }

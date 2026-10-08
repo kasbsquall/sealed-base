@@ -17,9 +17,9 @@ const REPO_NAME = "kasbsquall/sealed-base";
 const NAV = [
   { href: "#payment", label: "Payment", always: false },
   { href: "#replay", label: "Order log", always: false },
+  { href: "#verify", label: "Check it yourself", always: true },
   { href: "#record", label: "The record", always: false },
   { href: "#mechanism", label: "How it runs", always: false },
-  { href: "#verify", label: "Check it yourself", always: true },
   { href: "#limits", label: "Limits", always: false },
 ];
 
@@ -110,6 +110,14 @@ export default function Page() {
           </section>
         </ReplayProvider>
 
+        <section className="sec" id="verify" aria-labelledby="verify-h">
+          <SectionHead id="verify-h" title="Check it yourself">
+            Every link opens Base Sepolia on Basescan or Sourcify, and the two scripts read the chain itself. You need
+            no wallet.
+          </SectionHead>
+          <Verify runs={runs} deployment={deployment} payments={payments} />
+        </section>
+
         <section className="sec" id="record" aria-labelledby="record-h">
           <SectionHead id="record-h" title="Two negotiations, round by round">
             Negotiations {ids.join(" and ")}. Switch between what each agent knew and what Base recorded.
@@ -122,14 +130,6 @@ export default function Page() {
             Two contracts on Base, and one off-chain referee that sees both offers and tells the agents only yes or no.
           </SectionHead>
           <Mechanism deployment={deployment} />
-        </section>
-
-        <section className="sec" id="verify" aria-labelledby="verify-h">
-          <SectionHead id="verify-h" title="Check it yourself">
-            Every link opens Base Sepolia on Basescan or Sourcify, and the two scripts read the chain itself. You need
-            no wallet.
-          </SectionHead>
-          <Verify runs={runs} deployment={deployment} payments={payments} />
         </section>
 
         <section className="sec" id="business" aria-labelledby="biz-h">
