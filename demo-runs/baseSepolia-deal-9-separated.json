@@ -1,0 +1,107 @@
+{
+  "scenario": "deal",
+  "network": "baseSepolia",
+  "chainId": 84532,
+  "contract": "0x0C0E12C9C77FAcDa9302514A818DF232346e773A",
+  "relay": "0x764C0B6711548f6B136d752A49653A5f0613B850",
+  "model": "qwen2.5:14b-instruct",
+  "modelHost": "local (Ollama on the operator's machine)",
+  "terms": "Demo: price per 1,000 calls to a market-data API, 30-day term, in US cents",
+  "termsSchema": "0x211de523391648e1eb967008eeb83cd45c08c95eb01206f0e0180b9603b04d71",
+  "referencePrice": "4000",
+  "disclosure": "Demo only: mandates, offers, stances and salts are published so every on-chain hash can be recomputed. A real agent never discloses them.",
+  "separation": {
+    "note": "Three OS processes on one machine. Each agent process loaded only its own key and limit; the relay process never read the agents' keys and reached them over HTTP on 127.0.0.1.",
+    "relayPid": 33456,
+    "buyerPid": 35980,
+    "sellerPid": 30812
+  },
+  "agents": {
+    "buyer": {
+      "agentId": "9341",
+      "wallet": "0x9DE7DeEcCfFf2CA1958E48C3038b85e7130Bd240",
+      "limit": "4300"
+    },
+    "seller": {
+      "agentId": "9342",
+      "wallet": "0xB69841BBe445D059968f4949E5312B182eFF4726",
+      "limit": "4100"
+    }
+  },
+  "startedAt": "2026-10-08T22:14:05.136Z",
+  "finishedAt": "2026-10-08T22:14:57.535Z",
+  "negotiationId": "9",
+  "createTx": "0x03bc43a92e516507dc79d3be418e51de152e3f17b2b0a1f31cf316f2ecc89d53",
+  "deadline": "1791498570",
+  "rounds": [
+    {
+      "round": 1,
+      "buyer": {
+        "offer": "4100",
+        "stance": "open-with-room",
+        "explanation": "Opened at 4100, 100 above the reference, 200 below its limit.",
+        "commitIndex": 1,
+        "commitment": "0x95a5b0e283fce2f907001867f182eee441d0ac6de4944bed5ff579473ae067f7",
+        "commitTx": "0x7d75935768005cc488435dca6ea4f4afc600c50a2c06836c9b6f7b7003544d61",
+        "salt": "0x8c3f7edee109fb6e58d262955567305acc651b211e686e5ec96e5e5101ef73fc"
+      },
+      "seller": {
+        "offer": "4200",
+        "stance": "open-with-room",
+        "explanation": "Opened at 4200, 200 above the reference, 100 above its limit.",
+        "commitIndex": 1,
+        "commitment": "0xd2bd5b35d920b484660925d0a704201d68bae5bf48caee7b1603e0669e70a565",
+        "commitTx": "0x21b95f15025369f55e01987e20c7f3dbf909c94ce3638541aedefed1918f2f38",
+        "salt": "0x97aa47d3e4f08c10ee691a94843e34e333da5f3d6926fc06120a88c92df667a5"
+      },
+      "crossed": false
+    },
+    {
+      "round": 2,
+      "buyer": {
+        "offer": "4100",
+        "stance": "hold",
+        "explanation": "Held at 4100, 100 above the reference, 200 below its limit.",
+        "commitIndex": 2,
+        "commitment": "0xa2f82edda36398eeef3ff414ab3fd9778c578d6745e1bc1516b8334bbd712123",
+        "commitTx": "0xd1fd32f55d6f57a6bf4d62c5a837d483cbffe68ea0146d0d3d7973095ece9da6",
+        "salt": "0x6f33ea53d30bbbbb8e65e0dbb66c7a0398c5a813f2002c8bd56546221a327318"
+      },
+      "seller": {
+        "offer": "4150",
+        "stance": "concede",
+        "explanation": "Moved down 50 to 4150, 150 above the reference, 50 above its limit.",
+        "commitIndex": 2,
+        "commitment": "0x01ba823982fbc3941b151a0f3dc97a6cc1c3b6048836739147118da6493c7dea",
+        "commitTx": "0x80ac77c2b8725d2d24171660fd6c21bd7e2a0f67373269fcf2ce8785ff0beb90",
+        "salt": "0x7fe4b486da923bb6b278a4a3de537e275e0ede9605a91625bd18bb4e7ff58716"
+      },
+      "crossed": false
+    },
+    {
+      "round": 3,
+      "buyer": {
+        "offer": "4300",
+        "stance": "final-at-limit",
+        "explanation": "Moved up 200 to 4300, 300 above the reference, at its limit.",
+        "commitIndex": 3,
+        "commitment": "0xf6caf1186c39ffa96f3c78780975af3a851f90c9b4c70a6125c946eace81ecc3",
+        "commitTx": "0x0675d3c89e336264b0aab35ead8266190be5d5c813795ce1eed50b74cc470f34",
+        "salt": "0x7ebd52e679c598af4aa014ae9b28f0f35b913fcad6fc4c2fe29e71860111da69"
+      },
+      "seller": {
+        "offer": "4100",
+        "stance": "final-at-limit",
+        "explanation": "Moved down 50 to 4100, 100 above the reference, at its limit.",
+        "commitIndex": 3,
+        "commitment": "0x5b889cccccf937158f2a22007cee330874a55f007328d25cba088749b5304449",
+        "commitTx": "0x4c068359dae409596924cd4003f33a50388962aaa299efc8bf45ce15fe3deaa8",
+        "salt": "0x6dc1c0af3c7b2fdfe0da2137bad097f66b6bb544b915fdef959c0cb1d5116c3c"
+      },
+      "crossed": true
+    }
+  ],
+  "outcome": "settled",
+  "settleTx": "0x8d5619c0a60835e0a4fb55277e39a4d82acf34d96f1ab045b24fc27de4d90a4a",
+  "settledPrice": "4200"
+}
