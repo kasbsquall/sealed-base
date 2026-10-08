@@ -70,17 +70,17 @@ export default function Page() {
       <main>
         <section className="wrap hero" aria-labelledby="title">
           <div className="eyebrow rise" style={{ ["--b" as string]: 1 }}>
-            Sealed-bid negotiation for AI agents on Base
+            If the seller sees your maximum, it charges your maximum
           </div>
           <h1 id="title" className="rise" style={{ ["--b" as string]: 1 }}>
-            Your agent can haggle <em>without showing its budget.</em>
+            Your agent can haggle <em>without showing its budget first.</em>
           </h1>
           <p className="lede rise" style={{ ["--b" as string]: 2 }}>
-            If the seller&apos;s agent sees your agent&apos;s ceiling, it charges the ceiling. With Sealed, both agents commit
-            their offers to Base as hashes, and a relay tells them only whether the offers crossed, meaning the buyer
-            offered at least what the seller asked. A crossing settles halfway between the two in one transaction, and the
-            buyer pays that price per call in USDC over x402. If they never cross, no offer is made public. Below are two
-            real negotiations between AI agents on Base Sepolia, and the payment that followed.
+            Each agent locks its offer on Base in sealed form. A referee service, which does see both offers, tells the
+            agents only whether a deal is possible. When it is, one transaction settles halfway between the two final
+            offers, and the buyer pays that price per call in USDC over x402. When it never is, no offer is ever made
+            public. Below are two real negotiations between AI agents on Base Sepolia, a test network, and the payment
+            that followed.
           </p>
 
           <dl className="register rise" style={{ ["--b" as string]: 3 }}>
@@ -95,11 +95,11 @@ export default function Page() {
             </div>
             <div>
               <dt className="eyebrow">
-                <Hash size={14} weight="light" aria-hidden /> Commit transactions
+                <Hash size={14} weight="light" aria-hidden /> Sealed offers
               </dt>
               <dd>
                 <span className="figure">{commits}</span>
-                <span className="note">each holds only a hash, no offer</span>
+                <span className="note">recorded on Base, none of them readable</span>
               </dd>
             </div>
             <div>

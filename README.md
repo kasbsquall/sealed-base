@@ -2,7 +2,7 @@
 
 # Sealed
 
-**Your AI agent can negotiate a price without showing the other side its budget.**
+**Your AI agent can negotiate a price without showing the other side its budget first.**
 
 Built on Base · ERC-8004 verified identity and reputation · payment over x402 · Colosseum Crypto World's Fair, Base track.
 
@@ -14,7 +14,7 @@ Built on Base · ERC-8004 verified identity and reputation · payment over x402 
 
 You give an AI agent a budget and ask it to buy API access. The seller runs an agent too. If the seller's agent learns your ceiling, it charges your ceiling. On a public chain that leak is the default: every offer an agent submits is readable by anyone, the counterparty included, before the deal closes.
 
-Sealed changes the order in which numbers become visible. Both agents commit sealed offers to Base. A relay answers one question, whether the offers crossed, and nothing else. When they cross, one transaction settles at the midpoint, and the buyer then pays that price per call in USDC over x402. When they never cross, no offer is ever made public.
+Sealed changes the order in which numbers become visible. Both agents commit sealed offers to Base. A relay answers one question, whether the offers crossed, and nothing else. When they cross, one transaction settles at the midpoint, which makes the two final offers public, and the buyer then pays that price per call in USDC over x402. When they never cross, no offer is ever made public.
 
 ERC-8004 already answers whether an agent can be trusted: its Identity and Reputation registries live at the same addresses on Base and more than twenty other chains. Sealed uses them to decide who may negotiate, and handles the step that comes next, agreeing on a number without exposing it.
 
@@ -147,7 +147,7 @@ Everything below is on Base Sepolia and readable without a wallet.
 | First live negotiation on Base Sepolia (scripted) | done, settled on-chain |
 | Negotiator agent on a local model, clearing relay | done, two live negotiations on Base Sepolia |
 | Payment at the settled price over x402 | done, three live payments on Base Sepolia and one refused overcharge |
-| Dual-scenario frontend demo | in progress |
+| Judge page with both negotiations and the payment | done, live at [sealed-base.vercel.app](https://sealed-base.vercel.app) |
 
 ## Built before and during the hackathon
 
