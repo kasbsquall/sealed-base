@@ -1,0 +1,590 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-08T21:02:01.888Z",
+  "title": "Design System: Sealed",
+  "extensions": {
+    "colorMeta": {
+      "deal": {
+        "role": "primary",
+        "displayName": "Settlement Orange",
+        "canonical": "#ff4f1a",
+        "hexApprox": "#ff4f1a",
+        "usage": "Settlement stamp and isotipo center square only.",
+        "tonalRamp": [
+          "oklch(15% 0.2 37)",
+          "oklch(26% 0.2 37)",
+          "oklch(38% 0.2 37)",
+          "oklch(50% 0.2 37)",
+          "oklch(62% 0.2 37)",
+          "oklch(74% 0.2 37)",
+          "oklch(86% 0.2 37)",
+          "oklch(95% 0.2 37)"
+        ]
+      },
+      "desk": {
+        "role": "neutral",
+        "displayName": "Slate Desk",
+        "canonical": "oklch(33% 0.02 250)",
+        "hexApprox": "#2e363f",
+        "tonalRamp": [
+          "oklch(15% 0.02 250)",
+          "oklch(26% 0.02 250)",
+          "oklch(38% 0.02 250)",
+          "oklch(50% 0.02 250)",
+          "oklch(62% 0.02 250)",
+          "oklch(74% 0.02 250)",
+          "oklch(86% 0.02 250)",
+          "oklch(95% 0.02 250)"
+        ]
+      },
+      "desk-hi": {
+        "role": "neutral",
+        "displayName": "Desk Highlight",
+        "canonical": "oklch(37% 0.022 250)",
+        "hexApprox": "#37414b",
+        "tonalRamp": [
+          "oklch(15% 0.022 250)",
+          "oklch(26% 0.022 250)",
+          "oklch(38% 0.022 250)",
+          "oklch(50% 0.022 250)",
+          "oklch(62% 0.022 250)",
+          "oklch(74% 0.022 250)",
+          "oklch(86% 0.022 250)",
+          "oklch(95% 0.022 250)"
+        ]
+      },
+      "on-desk": {
+        "role": "neutral",
+        "displayName": "Desk Text",
+        "canonical": "oklch(95% 0.008 240)",
+        "hexApprox": "#eaeff3",
+        "tonalRamp": [
+          "oklch(15% 0.008 240)",
+          "oklch(26% 0.008 240)",
+          "oklch(38% 0.008 240)",
+          "oklch(50% 0.008 240)",
+          "oklch(62% 0.008 240)",
+          "oklch(74% 0.008 240)",
+          "oklch(86% 0.008 240)",
+          "oklch(95% 0.008 240)"
+        ]
+      },
+      "on-desk-2": {
+        "role": "neutral",
+        "displayName": "Desk Text Muted",
+        "canonical": "oklch(84% 0.014 245)",
+        "hexApprox": "#c3ccd3",
+        "tonalRamp": [
+          "oklch(15% 0.014 245)",
+          "oklch(26% 0.014 245)",
+          "oklch(38% 0.014 245)",
+          "oklch(50% 0.014 245)",
+          "oklch(62% 0.014 245)",
+          "oklch(74% 0.014 245)",
+          "oklch(86% 0.014 245)",
+          "oklch(95% 0.014 245)"
+        ]
+      },
+      "paper-w": {
+        "role": "neutral",
+        "displayName": "Buyer Copy White",
+        "canonical": "oklch(97.5% 0.006 240)",
+        "hexApprox": "#f3f7fa",
+        "tonalRamp": [
+          "oklch(15% 0.006 240)",
+          "oklch(26% 0.006 240)",
+          "oklch(38% 0.006 240)",
+          "oklch(50% 0.006 240)",
+          "oklch(62% 0.006 240)",
+          "oklch(74% 0.006 240)",
+          "oklch(86% 0.006 240)",
+          "oklch(95% 0.006 240)"
+        ]
+      },
+      "paper-y": {
+        "role": "neutral",
+        "displayName": "Seller Copy Canary",
+        "canonical": "oklch(92% 0.11 100)",
+        "hexApprox": "#f5e78f",
+        "tonalRamp": [
+          "oklch(15% 0.11 100)",
+          "oklch(26% 0.11 100)",
+          "oklch(38% 0.11 100)",
+          "oklch(50% 0.11 100)",
+          "oklch(62% 0.11 100)",
+          "oklch(74% 0.11 100)",
+          "oklch(86% 0.11 100)",
+          "oklch(95% 0.11 100)"
+        ]
+      },
+      "paper-p": {
+        "role": "neutral",
+        "displayName": "Chain Copy Pink",
+        "canonical": "oklch(89% 0.055 8)",
+        "hexApprox": "#fcccd4",
+        "tonalRamp": [
+          "oklch(15% 0.055 8)",
+          "oklch(26% 0.055 8)",
+          "oklch(38% 0.055 8)",
+          "oklch(50% 0.055 8)",
+          "oklch(62% 0.055 8)",
+          "oklch(74% 0.055 8)",
+          "oklch(86% 0.055 8)",
+          "oklch(95% 0.055 8)"
+        ]
+      },
+      "stamp-ground": {
+        "role": "neutral",
+        "displayName": "Stamp Clear Zone",
+        "canonical": "oklch(99% 0.004 240)",
+        "hexApprox": "#f9fcfe",
+        "tonalRamp": [
+          "oklch(15% 0.004 240)",
+          "oklch(26% 0.004 240)",
+          "oklch(38% 0.004 240)",
+          "oklch(50% 0.004 240)",
+          "oklch(62% 0.004 240)",
+          "oklch(74% 0.004 240)",
+          "oklch(86% 0.004 240)",
+          "oklch(95% 0.004 240)"
+        ]
+      },
+      "carbon": {
+        "role": "secondary",
+        "displayName": "Carbon Blue-Violet",
+        "canonical": "oklch(36% 0.14 268)",
+        "hexApprox": "#1f3385",
+        "tonalRamp": [
+          "oklch(15% 0.14 268)",
+          "oklch(26% 0.14 268)",
+          "oklch(38% 0.14 268)",
+          "oklch(50% 0.14 268)",
+          "oklch(62% 0.14 268)",
+          "oklch(74% 0.14 268)",
+          "oklch(86% 0.14 268)",
+          "oklch(95% 0.14 268)"
+        ]
+      },
+      "print": {
+        "role": "tertiary",
+        "displayName": "Dropout Green",
+        "canonical": "oklch(50% 0.08 165)",
+        "hexApprox": "#2f7258",
+        "tonalRamp": [
+          "oklch(15% 0.08 165)",
+          "oklch(26% 0.08 165)",
+          "oklch(38% 0.08 165)",
+          "oklch(50% 0.08 165)",
+          "oklch(62% 0.08 165)",
+          "oklch(74% 0.08 165)",
+          "oklch(86% 0.08 165)",
+          "oklch(95% 0.08 165)"
+        ]
+      },
+      "print-text": {
+        "role": "tertiary",
+        "displayName": "Dropout Green Text",
+        "canonical": "oklch(41% 0.08 165)",
+        "hexApprox": "#0f583f",
+        "tonalRamp": [
+          "oklch(15% 0.08 165)",
+          "oklch(26% 0.08 165)",
+          "oklch(38% 0.08 165)",
+          "oklch(50% 0.08 165)",
+          "oklch(62% 0.08 165)",
+          "oklch(74% 0.08 165)",
+          "oklch(86% 0.08 165)",
+          "oklch(95% 0.08 165)"
+        ]
+      },
+      "print-deep": {
+        "role": "tertiary",
+        "displayName": "Deep Print",
+        "canonical": "oklch(28% 0.05 165)",
+        "hexApprox": "#0a3123",
+        "tonalRamp": [
+          "oklch(15% 0.05 165)",
+          "oklch(26% 0.05 165)",
+          "oklch(38% 0.05 165)",
+          "oklch(50% 0.05 165)",
+          "oklch(62% 0.05 165)",
+          "oklch(74% 0.05 165)",
+          "oklch(86% 0.05 165)",
+          "oklch(95% 0.05 165)"
+        ]
+      },
+      "line": {
+        "role": "tertiary",
+        "displayName": "Ruled Line",
+        "canonical": "color-mix(in oklab, oklch(50% 0.08 165) 42%, transparent)"
+      },
+      "line-soft": {
+        "role": "tertiary",
+        "displayName": "Soft Rule",
+        "canonical": "color-mix(in oklab, oklch(50% 0.08 165) 22%, transparent)"
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Payment and fee figures."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "The hook, printed as the form title."
+      },
+      "section": {
+        "displayName": "Section",
+        "purpose": "Section headings on the desk."
+      },
+      "form-header": {
+        "displayName": "Form header",
+        "purpose": "Wordmark, order and record numbers, document titles, row numbers. Range 18 to 44px."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Purpose line under the hook."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Base reading text."
+      },
+      "body-sm": {
+        "displayName": "Body small",
+        "purpose": "Prose on paper."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Pre-printed field labels and column heads, sentence case, print-text green."
+      },
+      "typed": {
+        "displayName": "Typed",
+        "purpose": "Values typed onto the form in carbon."
+      },
+      "typed-sm": {
+        "displayName": "Typed small",
+        "purpose": "Links, ledgers, commands, status lines."
+      },
+      "typed-figure": {
+        "displayName": "Typed figure",
+        "purpose": "Typed amounts and prices."
+      },
+      "stamp-figure": {
+        "displayName": "Stamp figure",
+        "purpose": "The settled price on the rubber stamp."
+      },
+      "stamp-word": {
+        "displayName": "Stamp word",
+        "purpose": "SETTLED, uppercase on the stamp."
+      }
+    },
+    "shadows": [
+      {
+        "name": "paper-on-desk",
+        "value": "0 1px 1px oklch(22% 0.03 250 / 0.4), 0 18px 40px -14px oklch(18% 0.03 250 / 0.7)",
+        "purpose": "Every paper sheet and document. The only shadow in the system."
+      }
+    ],
+    "textures": [
+      {
+        "name": "grain",
+        "value": "SVG feTurbulence fractalNoise baseFrequency 0.85, numOctaves 2, 180px tile",
+        "purpose": "Desk surface (soft-light) and paper surface (multiply, 0.38 opacity)."
+      },
+      {
+        "name": "speckle",
+        "value": "SVG feTurbulence fractalNoise baseFrequency 0.7, numOctaves 3, seed 4, 220px tile",
+        "purpose": "Mask on the rubber stamp so the ink breaks up."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease",
+        "value": "cubic-bezier(0.23, 1, 0.32, 1)",
+        "purpose": "Default easing for entrances and state changes."
+      },
+      {
+        "name": "ease-move",
+        "value": "cubic-bezier(0.77, 0, 0.175, 1)",
+        "purpose": "Sheets moving within the fanned set."
+      },
+      {
+        "name": "rise",
+        "value": "260ms ease; translateY(6px) and opacity 0 to rest; 60ms stagger",
+        "purpose": "Entrance of nav, tabs and set."
+      },
+      {
+        "name": "sheet-switch",
+        "value": "240ms ease-move on transform",
+        "purpose": "A copy coming to the front."
+      },
+      {
+        "name": "tab",
+        "value": "200ms ease on transform and opacity",
+        "purpose": "Filing tab hover and selection."
+      },
+      {
+        "name": "stamp-drop",
+        "value": "230ms ease; rotate(-4deg) scale(1.08) opacity 0 to rotate(-6deg) scale(1)",
+        "purpose": "The stamp landing."
+      },
+      {
+        "name": "key",
+        "value": "90ms linear opacity per character",
+        "purpose": "Typed values during replay."
+      },
+      {
+        "name": "check-draw",
+        "value": "240ms ease on stroke-dashoffset",
+        "purpose": "Checkmarks drawing in."
+      },
+      {
+        "name": "radio",
+        "value": "160ms ease; scale(0.5) to 1",
+        "purpose": "Lens radio dot."
+      },
+      {
+        "name": "fade",
+        "value": "200ms ease opacity",
+        "purpose": "Record panel and lens switch."
+      },
+      {
+        "name": "press",
+        "value": "scale(0.97), 120 to 140ms",
+        "purpose": "Button press."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "strip-3col",
+        "value": "1100px"
+      },
+      {
+        "name": "stack",
+        "value": "860px"
+      },
+      {
+        "name": "settle-first",
+        "value": "767px"
+      },
+      {
+        "name": "nav-trim",
+        "value": "760px"
+      },
+      {
+        "name": "phone",
+        "value": "640px"
+      },
+      {
+        "name": "tiny",
+        "value": "359px"
+      }
+    ],
+    "brand": {
+      "isotipo": {
+        "name": "Cruce",
+        "viewBox": "0 0 64 64",
+        "lines": [
+          {
+            "from": [
+              8,
+              52
+            ],
+            "to": [
+              56,
+              20
+            ]
+          },
+          {
+            "from": [
+              8,
+              16
+            ],
+            "to": [
+              56,
+              44
+            ]
+          }
+        ],
+        "strokeWidth": 6.5,
+        "strokeLinecap": "square",
+        "strokeColor": "currentColor",
+        "cutout": {
+          "x": 31.3,
+          "y": 27.3,
+          "size": 11,
+          "fill": "ground color it is printed on"
+        },
+        "square": {
+          "x": 32.8,
+          "y": 28.8,
+          "size": 8,
+          "fill": "#ff4f1a"
+        },
+        "svg": "<svg width=\"64\" height=\"64\" viewBox=\"0 0 64 64\" aria-hidden=\"true\"><line x1=\"8\" y1=\"52\" x2=\"56\" y2=\"20\" stroke=\"currentColor\" stroke-width=\"6.5\" stroke-linecap=\"square\"/><line x1=\"8\" y1=\"16\" x2=\"56\" y2=\"44\" stroke=\"currentColor\" stroke-width=\"6.5\" stroke-linecap=\"square\"/><rect x=\"31.3\" y=\"27.3\" width=\"11\" height=\"11\" fill=\"GROUND\"/><rect x=\"32.8\" y=\"28.8\" width=\"8\" height=\"8\" fill=\"#ff4f1a\"/></svg>",
+        "faviconVariant": {
+          "strokeWidth": 7.5,
+          "cutout": {
+            "x": 30.3,
+            "y": 26.3,
+            "size": 13
+          },
+          "square": {
+            "x": 32.3,
+            "y": 28.3,
+            "size": 9
+          },
+          "line": "#151617",
+          "ground": "#f2f2ee"
+        }
+      },
+      "wordmark": "Sealed, Archivo 800 at width 125%, 19px in nav, 22px in form header",
+      "icons": "Phosphor Icons, weight Light only, 1em to 1.1em, aria-hidden, always beside text",
+      "emoji": "never"
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button (Replay)",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The single primary action: carbon fill, square, two-line label with an outlined icon box.",
+      "html": "<button class=\"ds-btn-primary\"><span class=\"ds-box\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 256 256\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"12\" stroke-linejoin=\"round\" aria-hidden=\"true\"><polygon points=\"80,48 200,128 80,208\"/></svg></span><span><span class=\"ds-bl\">Replay negotiation #6</span><span class=\"ds-bs\">9 steps, typed onto all three copies</span></span></button>",
+      "css": ".ds-btn-primary{appearance:none;border:0;border-radius:0;cursor:pointer;display:inline-flex;align-items:center;gap:14px;text-align:left;padding:11px 22px 11px 11px;min-height:56px;min-width:290px;background:oklch(36% 0.14 268);color:oklch(97.5% 0.006 240);font-family:Archivo,sans-serif;transition:transform 140ms cubic-bezier(0.23,1,0.32,1),opacity 160ms cubic-bezier(0.23,1,0.32,1)}.ds-box{display:grid;place-items:center;width:34px;height:34px;border:1.5px solid color-mix(in oklab,oklch(97.5% 0.006 240) 70%,transparent)}.ds-bl{display:block;font-stretch:112%;font-weight:700;font-size:18px;line-height:1.15;letter-spacing:-0.01em}.ds-bs{display:block;font-size:13px;font-weight:500;opacity:.88;margin-top:2px}.ds-btn-primary:hover{opacity:.92}.ds-btn-primary:active{transform:scale(0.97)}.ds-btn-primary:focus-visible{outline:2px solid oklch(36% 0.14 268);outline-offset:3px}"
+    },
+    {
+      "name": "Copy Button",
+      "kind": "button",
+      "refersTo": "button-copy",
+      "description": "Outlined square button beside a command; fills print-deep when copied.",
+      "html": "<button class=\"ds-copy\">Copy</button>",
+      "css": ".ds-copy{appearance:none;cursor:pointer;display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:4px 12px;border:1.5px solid oklch(28% 0.05 165);border-radius:0;background:transparent;color:oklch(28% 0.05 165);font-family:Archivo,sans-serif;font-weight:650;font-size:13px;transition:transform 120ms cubic-bezier(0.23,1,0.32,1)}.ds-copy:hover{background:color-mix(in oklab,oklch(50% 0.08 165) 14%,transparent)}.ds-copy:active{transform:scale(0.97)}.ds-copy:focus-visible{outline:2px solid oklch(36% 0.14 268);outline-offset:3px}"
+    },
+    {
+      "name": "Filing Tabs",
+      "kind": "nav",
+      "refersTo": "filing-tab-buyer",
+      "description": "Trapezoid tabs in each copy's paper stock; the selected tab sits forward.",
+      "html": "<div class=\"ds-tabs\" role=\"tablist\"><button class=\"ds-tab ds-w\" role=\"tab\" aria-selected=\"true\">Buyer copy</button><button class=\"ds-tab ds-y\" role=\"tab\" aria-selected=\"false\">Seller copy</button><button class=\"ds-tab ds-p\" role=\"tab\" aria-selected=\"false\">Chain copy</button></div>",
+      "css": ".ds-tabs{display:flex;gap:6px;padding:12px 22px 0;background:oklch(33% 0.02 250)}.ds-tab{appearance:none;border:0;cursor:pointer;padding:9px 20px 11px;min-height:40px;font-family:Archivo,sans-serif;font-stretch:112%;font-weight:600;font-size:14.5px;color:oklch(28% 0.05 165);clip-path:polygon(9px 0,calc(100% - 9px) 0,100% 100%,0 100%);transform:translateY(5px);opacity:.86;transition:transform 200ms cubic-bezier(0.23,1,0.32,1),opacity 200ms cubic-bezier(0.23,1,0.32,1)}.ds-w{background:oklch(97.5% 0.006 240)}.ds-y{background:oklch(92% 0.11 100)}.ds-p{background:oklch(89% 0.055 8)}.ds-tab[aria-selected=\"true\"]{transform:translateY(1px);opacity:1}.ds-tab:not([aria-selected=\"true\"]):hover{transform:translateY(2px);opacity:.95}.ds-tab:active{transform:translateY(3px) scale(0.98)}.ds-tab:focus-visible{outline:2px solid oklch(36% 0.14 268);outline-offset:-6px}"
+    },
+    {
+      "name": "Form Field Strip",
+      "kind": "input",
+      "refersTo": "form-field",
+      "description": "Ruled boxes on paper: green printed label above a carbon typed value.",
+      "html": "<div class=\"ds-paper\"><div class=\"ds-strip\"><div class=\"ds-fld\"><span class=\"ds-lbl\">Public reference price</span><span class=\"ds-ty\">$40.00 per 1,000 calls</span></div><div class=\"ds-fld\"><span class=\"ds-lbl\">Deadline</span><span class=\"ds-ty\">2026-09-27 17:25 UTC</span></div></div></div>",
+      "css": ".ds-paper{background:oklch(97.5% 0.006 240);padding:16px 22px;box-shadow:0 1px 1px oklch(22% 0.03 250 / 0.4),0 18px 40px -14px oklch(18% 0.03 250 / 0.7)}.ds-strip{display:grid;grid-template-columns:1fr 1fr;border-top:2px solid oklch(50% 0.08 165);border-bottom:1px solid color-mix(in oklab,oklch(50% 0.08 165) 42%,transparent)}.ds-fld{padding:6px 12px 8px 14px;border-left:1px solid color-mix(in oklab,oklch(50% 0.08 165) 42%,transparent)}.ds-fld:first-child{border-left:0;padding-left:0}.ds-lbl{display:block;font-family:Archivo,sans-serif;font-weight:500;font-size:12px;line-height:1.25;letter-spacing:.01em;color:oklch(41% 0.08 165)}.ds-ty{display:block;margin-top:3px;font-family:\"Courier Prime\",monospace;font-size:15px;line-height:1.35;color:oklch(36% 0.14 268);font-variant-numeric:tabular-nums lining-nums slashed-zero}"
+    },
+    {
+      "name": "Security Crosshatch",
+      "kind": "custom",
+      "description": "Pre-printed block over a field this copy must not receive.",
+      "html": "<span class=\"ds-blk\" role=\"img\" aria-label=\"Not on this copy\"></span>",
+      "css": ".ds-blk{display:inline-block;min-width:84px;height:24px;vertical-align:middle;background-color:color-mix(in oklab,oklch(50% 0.08 165) 26%,oklch(97.5% 0.006 240));background-image:repeating-linear-gradient(45deg,color-mix(in oklab,oklch(50% 0.08 165) 80%,transparent) 0 1.3px,transparent 1.3px 3.2px),repeating-linear-gradient(-45deg,color-mix(in oklab,oklch(50% 0.08 165) 80%,transparent) 0 1.3px,transparent 1.3px 3.2px);opacity:.94}"
+    },
+    {
+      "name": "Settlement Stamp",
+      "kind": "custom",
+      "refersTo": "stamp-settled",
+      "description": "The only orange on the page: a rotated rubber stamp in its clear zone.",
+      "html": "<div class=\"ds-zone\"><div class=\"ds-stamp\"><span class=\"ds-s1\">Settled</span><span class=\"ds-s2\">$42.00</span><span class=\"ds-s3\">per 1,000 calls</span></div></div>",
+      "css": ".ds-zone{display:inline-flex;padding:16px 22px;background:oklch(99% 0.004 240);outline:1px dashed color-mix(in oklab,oklch(50% 0.08 165) 42%,transparent);outline-offset:-1px}.ds-stamp{display:flex;flex-direction:column;align-items:center;padding:6px 18px 8px;border:3.5px solid #ff4f1a;outline:1.5px solid #ff4f1a;outline-offset:3px;color:#ff4f1a;font-family:Archivo,sans-serif;font-stretch:125%;transform:rotate(-6deg);mix-blend-mode:multiply;animation:ds-drop 230ms cubic-bezier(0.23,1,0.32,1) both}.ds-s1{font-weight:800;font-size:20px;letter-spacing:.06em;text-transform:uppercase;line-height:1.1}.ds-s2{font-weight:900;font-size:44px;letter-spacing:-0.02em;line-height:1}.ds-s3{font-weight:700;font-size:20px;line-height:1.15;font-stretch:100%}@keyframes ds-drop{from{opacity:0;transform:rotate(-4deg) scale(1.08)}to{opacity:1;transform:rotate(-6deg) scale(1)}}@media (prefers-reduced-motion:reduce){.ds-stamp{animation:none}}"
+    },
+    {
+      "name": "Ledger Rows",
+      "kind": "card",
+      "description": "Ruled table: label heads over a 1.5px rule, typed carbon cells over 1px rules, current row tinted 8% carbon.",
+      "html": "<table class=\"ds-led\"><thead><tr><th>Round</th><th>Buyer offer per 1,000 calls</th><th>Referee answer</th></tr></thead><tbody><tr><th>1</th><td>$41.00</td><td>Offers apart</td></tr><tr class=\"ds-now\"><th>3</th><td>$43.00</td><td>Offers meet</td></tr></tbody></table>",
+      "css": ".ds-led{border-collapse:collapse;width:100%;background:oklch(97.5% 0.006 240)}.ds-led thead th{font-family:Archivo,sans-serif;font-weight:500;font-size:12px;text-align:left;color:oklch(41% 0.08 165);padding:0 10px 6px 0;border-bottom:1.5px solid oklch(50% 0.08 165)}.ds-led tbody th{font-family:Archivo,sans-serif;font-stretch:125%;font-weight:800;font-size:20px;color:oklch(28% 0.05 165);text-align:left;width:52px}.ds-led td,.ds-led tbody th{padding:9px 10px 9px 0;border-bottom:1px solid color-mix(in oklab,oklch(50% 0.08 165) 42%,transparent)}.ds-led td{font-family:\"Courier Prime\",monospace;font-size:16px;color:oklch(36% 0.14 268);font-variant-numeric:tabular-nums lining-nums slashed-zero}.ds-now>*{background:color-mix(in oklab,oklch(36% 0.14 268) 8%,transparent)}"
+    },
+    {
+      "name": "Command Block",
+      "kind": "custom",
+      "refersTo": "command-block",
+      "description": "Typed command in a ruled, lightly tinted box that scrolls instead of wrapping.",
+      "html": "<div class=\"ds-cmd\"><pre><code>npm run verify:run</code></pre></div>",
+      "css": ".ds-cmd{padding:10px 12px;border:1px solid color-mix(in oklab,oklch(50% 0.08 165) 42%,transparent);background:color-mix(in oklab,oklch(50% 0.08 165) 7%,oklch(97.5% 0.006 240))}.ds-cmd pre{margin:0;white-space:pre;overflow-x:auto}.ds-cmd code{font-family:\"Courier Prime\",monospace;font-size:13px;line-height:1.6;letter-spacing:-0.015em;color:oklch(36% 0.14 268)}"
+    },
+    {
+      "name": "Typed Link",
+      "kind": "custom",
+      "refersTo": "link-typed",
+      "description": "Transaction link typed in carbon with a Phosphor Light arrow.",
+      "html": "<a class=\"ds-lk\" href=\"#\">0x772b...0a5e<svg width=\"13\" height=\"13\" viewBox=\"0 0 256 256\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"12\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><line x1=\"64\" y1=\"192\" x2=\"192\" y2=\"64\"/><polyline points=\"88 64 192 64 192 168\"/></svg></a>",
+      "css": ".ds-lk{display:inline-flex;align-items:baseline;gap:2px;color:oklch(36% 0.14 268);font-family:\"Courier Prime\",monospace;font-size:13px;text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px;text-decoration-color:color-mix(in oklab,oklch(36% 0.14 268) 45%,transparent)}.ds-lk svg{align-self:center}.ds-lk:hover{text-decoration-color:oklch(36% 0.14 268)}.ds-lk:focus-visible{outline:2px solid oklch(36% 0.14 268);outline-offset:3px}"
+    },
+    {
+      "name": "Desk Nav",
+      "kind": "nav",
+      "refersTo": "nav-link",
+      "description": "Cruce isotipo and wordmark on the desk, muted section links on the right.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-brand\" href=\"#\"><svg width=\"30\" height=\"30\" viewBox=\"0 0 64 64\" aria-hidden=\"true\"><line x1=\"8\" y1=\"52\" x2=\"56\" y2=\"20\" stroke=\"currentColor\" stroke-width=\"6.5\" stroke-linecap=\"square\"/><line x1=\"8\" y1=\"16\" x2=\"56\" y2=\"44\" stroke=\"currentColor\" stroke-width=\"6.5\" stroke-linecap=\"square\"/><rect x=\"31.3\" y=\"27.3\" width=\"11\" height=\"11\" fill=\"oklch(33% 0.02 250)\"/><rect x=\"32.8\" y=\"28.8\" width=\"8\" height=\"8\" fill=\"#ff4f1a\"/></svg>Sealed</a><a class=\"ds-nl\" href=\"#\">Payment</a><a class=\"ds-nl\" href=\"#\">The record</a></nav>",
+      "css": ".ds-nav{display:flex;align-items:center;gap:4px;padding:18px 24px;background:oklch(33% 0.02 250)}.ds-brand{display:flex;align-items:center;gap:10px;margin-right:auto;color:oklch(95% 0.008 240);text-decoration:none;font-family:Archivo,sans-serif;font-weight:800;font-stretch:125%;font-size:19px;letter-spacing:-0.01em}.ds-nl{display:inline-flex;align-items:center;padding:8px 10px;min-height:36px;color:oklch(84% 0.014 245);text-decoration:none;font-family:Archivo,sans-serif;font-size:14.5px;font-weight:500}.ds-nl:hover{color:oklch(95% 0.008 240);text-decoration:underline}.ds-nl:focus-visible,.ds-brand:focus-visible{outline:2px solid oklch(95% 0.008 240);outline-offset:3px}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Carbon Triplicate",
+    "overview": "Sealed is drawn as office paperwork. A fanned set of three carbon copies lies on a dark slate desk: a cool white buyer copy, a canary seller copy and a pink chain copy. Each copy shows only what its party may know. Pre-printed form furniture (rules, box labels, column heads) is in dropout green ink, and everything typed onto the form is carbon blue-violet in a typewriter face. A field that a copy must not receive is covered by a pre-printed security crosshatch, so the hiding is something you can see.\n\nThe density is that of a real business form. Data sits in ruled boxes and ruled tables with tight internal spacing, and the air goes between documents on the desk, never inside the rows. Corners are square everywhere, depth comes from paper resting on the desk, and there is one moment of color: an orange rubber stamp at the settlement. The same orange appears in the small square at the center of the Cruce isotipo.\n\nRejected in the shipped build: the crypto dashboard look (dark glass, neon, gradient cards) and a vertical stepper of numbered process cards. Steps are rows in ruled tables or numbered clauses with a rule under each.",
+    "keyCharacteristics": [
+      "Slate desk ground with grain; paper copies with multiply grain and one soft paper shadow.",
+      "Two inks on paper: dropout green for what is printed, carbon blue-violet for what is typed.",
+      "Archivo with its width axis (100% to 125%) for printed text; Courier Prime only for typed data.",
+      "Square corners, 1px ruled boxes, 2px header rules, perforated stubs, trapezoid filing tabs.",
+      "Orange `#FF4F1A` lives in exactly two places: the settlement stamp and the isotipo square.",
+      "Phosphor icons, Light weight only. No emoji anywhere."
+    ],
+    "rules": [
+      {
+        "name": "The One Stamp Rule",
+        "body": "`#FF4F1A` appears only as the settlement stamp and the isotipo's center square. A failed or expired negotiation is stamped in carbon, never orange.",
+        "section": "colors"
+      },
+      {
+        "name": "The Two Inks Rule",
+        "body": "On paper, green means printed by the form and carbon means typed by a party. A value is never green; a label is never carbon.",
+        "section": "colors"
+      },
+      {
+        "name": "The Paper Stock Rule",
+        "body": "Copy identity is carried by paper color (white buyer, canary seller, pink chain), never by an accent stripe or a colored badge.",
+        "section": "colors"
+      },
+      {
+        "name": "The Typewriter Rule",
+        "body": "Courier Prime is used only for data typed onto a form: values, hashes, addresses, commands, links to transactions. Headings and labels are never set in it.",
+        "section": "typography"
+      },
+      {
+        "name": "The Width Axis Rule",
+        "body": "Width encodes rank. 125% for printed headers and numbers, 112-122% for tabs, buttons and headings, 100% for reading text and labels.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Shadow Rule",
+        "body": "Only paper casts a shadow. Buttons, tabs, stamps and boxes are flat on the sheet.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** keep `#ff4f1a` to the settlement stamp and the isotipo square, and stamp failed outcomes in carbon.",
+      "**Do** type every value, hash, address and amount in Courier Prime carbon, and print every label in Archivo 500 12px `print-text`.",
+      "**Do** separate data with 1px `line` rules and 2px `print` header rules inside a ruled grid.",
+      "**Do** hide what a copy must not know behind the security crosshatch, in place of the value.",
+      "**Do** keep every corner square (0px); the lens radio dot is the only circle.",
+      "**Do** use Phosphor icons at weight Light, sized 1em to 1.1em, `aria-hidden`, next to their text.",
+      "**Do** keep tabular, lining, slashed-zero numerals on every number.",
+      "**Do** keep motion under 300ms on `transform` and `opacity`, with reduced motion painting the final state."
+    ],
+    "donts": [
+      "**Don't** use orange for text, links, buttons, highlights, charts or any second stamp.",
+      "**Don't** use emoji anywhere, in UI, copy, captures or video.",
+      "**Don't** use rounded corners, pill shapes or card radii.",
+      "**Don't** add shadows to anything other than a paper sheet, and never use untinted black shadows.",
+      "**Don't** mark a row or copy with a colored accent stripe; copy identity is the paper stock and row emphasis is the 8% carbon tint.",
+      "**Don't** set headings or labels in Courier Prime, or typed values in Archivo.",
+      "**Don't** introduce gradients, glass, glow or neon; the only gradient is the desk's radial lift.",
+      "**Don't** turn steps into a vertical stack of equal cards; use ruled table rows or numbered clauses."
+    ]
+  }
+}
