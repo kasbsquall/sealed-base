@@ -12,17 +12,25 @@
     "seed:base-sepolia": "hardhat run scripts/seed-demo.ts --network baseSepolia",
     "demo:base-sepolia": "hardhat run scripts/run-demo.ts --network baseSepolia",
     "verify:run": "hardhat run scripts/verify-run.ts",
-    "demo:privy": "hardhat run scripts/privy-demo.ts --network baseSepolia"
+    "pay:x402": "tsx scripts/pay-at-settled-price.ts",
+    "verify:payments": "tsx scripts/verify-payments.ts"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",
     "@openzeppelin/contracts": "5.4.0",
     "@openzeppelin/contracts-upgradeable": "5.4.0",
+    "@types/express": "^5.0.6",
     "dotenv": "^16.6.1",
     "hardhat": "^2.22.17",
+    "tsx": "^4.23.15",
     "typescript": "^5.6.3"
   },
   "dependencies": {
-    "@privy-io/node": "^0.34.0"
+    "@x402/core": "^2.28.0",
+    "@x402/evm": "^2.28.0",
+    "@x402/express": "^2.28.0",
+    "@x402/fetch": "^2.28.0",
+    "express": "^5.2.1",
+    "viem": "^2.57.4"
   }
 }

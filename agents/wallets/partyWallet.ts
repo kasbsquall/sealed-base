@@ -13,9 +13,8 @@ import { baseFees } from "../sealed/fees";
  * sign a settlement authorization. Opening, settling and expiring are done by
  * the relay, so an agent's key never has to be able to do anything else.
  *
- * `AgentWallet` in agents/privy/agentWallet.ts satisfies this interface with a
- * Privy server wallet under the Sealed mandate. `LocalPartyWallet` below is the
- * same thing with a local key, used by the demo and the tests.
+ * `LocalPartyWallet` below implements it with a local key, used by the demo and
+ * the tests. Any signer that can send a transaction and sign EIP-712 data fits.
  */
 export interface PartyWallet {
   readonly address: string;

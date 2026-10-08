@@ -70,16 +70,16 @@ ERC-8004 canonical registries on Base        (read only, not deployed by us)
   SealedNegotiation.sol   commitment, counter-offers, atomic settlement, silent expiry
         |
         v
-  Privy agent wallets     each agent signs autonomously, under a policy whose
-                          contract allowlist is Sealed and nothing else
-        |
-        v
   NegotiatorAgent         decides each round's number with a local model (Qwen 2.5
                           14B on Ollama); code clamps it to the mandate
         |
         v
   ClearingRelay           checks reveals against on-chain hashes, answers one bit
                           per round, submits the atomic settlement or the expiry
+        |
+        v
+  x402 payment            the buyer pays the seller's API per call in USDC on Base,
+                          at the settled price, and refuses any other terms
 ```
 
 ### The mandate never leaves the operator's machine
@@ -88,13 +88,16 @@ An agent's mandate (the most it may pay, the least it may accept) is exactly the
 
 The model proposes and the code disposes. Whatever the model says, [`NegotiatorAgent`](agents/negotiator/negotiator.ts) never commits past its principal's limit, never walks back an earlier concession, rejects answers on the wrong scale, and records every correction. In the live no-deal run #7 the code corrected the model three times.
 
-See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md), [docs/PRIVY.md](docs/PRIVY.md) and [docs/ADDRESSES.md](docs/ADDRESSES.md).
+See [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) and [docs/ADDRESSES.md](docs/ADDRESSES.md).
 
-### The agent's mandate is enforced by infrastructure, not by good behaviour
+### After the deal, the buyer pays at the settled price over x402
 
-A negotiator signs without a human in the loop, which makes it a drainable key with a language interface attached. So Sealed bounds what the key can do rather than trusting the agent. Its Privy policy allows transactions only to the Sealed contract, on Base, carrying zero value, and allows `eth_signTypedData_v4` only when the EIP-712 domain's `verifyingContract` is that same Sealed address. Everything else is denied by default.
+Negotiation #6 settled a price for API access: 4200 US cents per 1,000 calls, which is 42,000 atomic USDC per call. The seller's API ([`agents/x402/sellerService.ts`](agents/x402/sellerService.ts)) charges per call over x402, with the price and the payee read from the settled negotiation on-chain. The buyer's client ([`agents/x402/buyerClient.ts`](agents/x402/buyerClient.ts)) reads the same deal and, before signing anything, compares it with the server's 402 requirement. A different amount, payee, asset or network aborts the payment. The demo seller also exposes a surge endpoint at twice the price, and the buyer refuses it.
 
-That second rule is the one that usually gets forgotten. An agent able to sign arbitrary typed data can be talked into signing a Permit2 approval or a Seaport order, and no transaction allowlist stops it, because the damage happens off-chain and lands later. Pinning the domain closes it. A negotiator that is jailbroken, prompt-poisoned, or fully compromised can still only negotiate badly.
+```bash
+npm run pay:x402                                            # needs Base Sepolia USDC on the buyer wallet
+npm run verify:payments -- demo-runs/baseSepolia-x402-6.json
+```
 
 ## Running it
 
@@ -139,17 +142,17 @@ Everything below is on Base Sepolia and readable without a wallet.
 | | |
 |---|---|
 | ERC-8004 integration researched and addresses confirmed | done |
-| `SealedNegotiation.sol` with atomic EIP-712 settlement | done, tested against the real ERC-8004 registry code (36 tests in the suite) |
+| `SealedNegotiation.sol` with atomic EIP-712 settlement | done, tested against the real ERC-8004 registry code (48 tests in the suite) |
 | `ReputationGate.sol` with explicit on-chain admission policy over trusted reviewers | done, interface checked against live Base Sepolia |
-| Privy agent wallets under a contract-scoped mandate | written and typechecked, not yet run against Privy |
 | Deployment to Base Sepolia, source verified on Sourcify | done, see [docs/ADDRESSES.md](docs/ADDRESSES.md) |
 | First live negotiation on Base Sepolia (scripted) | done, settled on-chain |
 | Negotiator agent on a local model, clearing relay | done, two live negotiations on Base Sepolia |
+| Payment at the settled price over x402 | written and tested against a stand-in facilitator; live run on Base Sepolia pending |
 | Dual-scenario frontend demo | in progress |
 
 ## Built before and during the hackathon
 
-Sealed started as a prototype on Monad, written for a different hackathon. The first two commits in this repository (2026-09-17) are that prototype: the core contracts, the test suite and the Privy mandate. Everything after them is the Base version built for Colosseum Crypto World's Fair. The history is kept on purpose so anyone can check with `git log` which work came from the Monad prototype.
+Sealed started as a prototype on Monad, written for a different hackathon. The first two commits in this repository (2026-09-17) are that prototype: the core contracts, the test suite and a Privy wallet policy, which was removed on 2026-10-08. Everything after them is the Base version built for Colosseum Crypto World's Fair. The history is kept on purpose so anyone can check with `git log` which work came from the Monad prototype.
 
 ## License
 

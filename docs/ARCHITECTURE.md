@@ -111,13 +111,11 @@ party's true limit.
 
 ## Layers above the contracts
 
-**Privy agent wallets.** Each agent runs on a Privy server wallet owned by an
-authorization key held by the backend, under a policy whose contract allowlist is
-the Sealed deployment and nothing else. The agent signs `commitOffer` and its
-settlement authorization autonomously, with no human in the loop per transaction,
-and the wallet's private key never leaves Privy's enclave. The mandate is
-cryptographically bounded: even a fully compromised agent cannot move funds anywhere
-other than through Sealed.
+**Payment over x402.** Once a negotiation settles, the buyer agent pays the seller
+agent's API per call over x402, in USDC on Base. The price per call and the payee are
+read from the settled negotiation on-chain, and the buyer refuses any 402 that asks
+for a different amount, asset, network or payee
+([`agents/x402/`](../agents/x402)).
 
 **Negotiator agent.** Receives a mandate from its principal (a reservation price, a
 walk-away point, a concession budget), decides what to commit each round, and decides
