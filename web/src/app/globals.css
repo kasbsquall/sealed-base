@@ -1002,3 +1002,131 @@ pre {
     flex-basis: 100%;
   }
 }
+
+/* ---------- Payment ---------- */
+
+.payments {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.4fr);
+  background: var(--paper-raised);
+  border: 1px solid var(--rule-strong);
+  border-radius: var(--radius);
+  box-shadow: 0 1px 0 var(--rule), 0 24px 48px -32px var(--shadow);
+}
+.pay-figure {
+  padding: clamp(1.75rem, 1.2rem + 2vw, 2.75rem) 1.5rem 1.5rem;
+  border-right: 1px solid var(--rule);
+  display: flex;
+  flex-direction: column;
+}
+.pay-figure .eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.pay-figure .figure {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums lining-nums slashed-zero;
+  font-size: var(--text-display);
+  font-weight: 300;
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+  margin: 1.25rem 0 0 -0.04em;
+}
+.pay-balance {
+  margin: auto 0 0;
+  padding-top: 2.5rem;
+}
+.pay-balance dt {
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+}
+.pay-balance dd {
+  margin: 0.4rem 0 0;
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums lining-nums slashed-zero;
+  font-size: var(--text-lg);
+}
+.pay-balance svg {
+  vertical-align: middle;
+}
+.pay-balance .note {
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  color: var(--ink-3);
+}
+.pay-calls {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.pay-calls li {
+  display: grid;
+  grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+  gap: 0.35rem 1rem;
+  align-items: baseline;
+  padding: 1.15rem 1.5rem;
+  animation: rise 240ms var(--ease-out) both;
+  animation-delay: calc(200ms + var(--i, 0) * 30ms);
+}
+.pay-calls li + li {
+  border-top: 1px solid var(--rule);
+}
+.pay-calls .n {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--ink-3);
+}
+.pay-calls .endpoint {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--ink-3);
+}
+.pay-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.3rem;
+  font-weight: 600;
+}
+.pay-state svg {
+  flex: none;
+}
+.pay-calls .refused {
+  background: var(--paper-inset);
+}
+.pay-calls .refused .pay-state {
+  color: var(--ink-2);
+}
+.pay-calls .reason {
+  display: block;
+  margin-top: 0.35rem;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--ink-2);
+  overflow-wrap: anywhere;
+}
+.pay-tx .none {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  color: var(--ink-3);
+}
+
+@media (max-width: 760px) {
+  .payments {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pay-figure {
+    border-right: 0;
+    border-bottom: 1px solid var(--rule);
+    padding: 2rem 1rem 1.5rem;
+  }
+  .pay-calls li {
+    grid-template-columns: 2rem minmax(0, 1fr);
+    padding: 1rem;
+  }
+  .pay-tx {
+    grid-column: 2;
+  }
+}

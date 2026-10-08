@@ -9,6 +9,7 @@ import path from "path";
 
 const ROOT = path.join(process.cwd(), "..");
 const FEATURED = ["baseSepolia-deal-6.json", "baseSepolia-no-deal-7.json"];
+const PAYMENTS = "baseSepolia-x402-6.json";
 
 export interface Side {
   offer: string;
@@ -59,10 +60,36 @@ export interface Deployment {
   feedback: Record<"buyer" | "seller" | "newcomer", string[]>;
 }
 
+export interface PaymentCall {
+  url: string;
+  paid: boolean;
+  status: number;
+  transaction?: string;
+  refusal?: string;
+}
+
+export interface Payments {
+  negotiationId: string;
+  settledPrice: string;
+  usdcPerCall: string;
+  asset: string;
+  buyer: string;
+  seller: string;
+  complete: boolean;
+  calls: PaymentCall[];
+  sellerUsdcBefore: string;
+  sellerUsdcAfter: string;
+  file: string;
+}
+
 const read = <T,>(...parts: string[]): T => JSON.parse(fs.readFileSync(path.join(ROOT, ...parts), "utf8"));
 
 export function loadRuns(): Run[] {
   return FEATURED.map((file) => ({ ...read<Omit<Run, "file">>("demo-runs", file), file: `demo-runs/${file}` }));
+}
+
+export function loadPayments(): Payments {
+  return { ...read<Omit<Payments, "file">>("demo-runs", PAYMENTS), file: `demo-runs/${PAYMENTS}` };
 }
 
 export function loadDeployment(): Deployment {

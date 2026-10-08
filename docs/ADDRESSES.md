@@ -83,3 +83,16 @@ Negotiations #2 and #4 were development runs that stopped on a stale read from a
 load-balanced RPC node (fixed in the relay). Both were later closed with `expire`:
 [`#2`](https://sepolia.basescan.org/tx/0x36db8553c4000e588bd393b4bce6a2b77457884f925b8986bbab1cc4f8e23837),
 [`#4`](https://sepolia.basescan.org/tx/0x58d483bc84da7322a3c883e7afb24453ac82e265410cba8da4b268a47247f5f1).
+
+### Payment at the settled price (x402)
+
+`scripts/pay-at-settled-price.ts`, after negotiation #6. The buyer agent paid the seller's API per call over x402, in Circle's USDC on Base Sepolia ([`0x036CbD53…`](https://sepolia.basescan.org/address/0x036CbD53842c5426634e7929541eC2318f3dCF7e)), at the settled 4200 US cents per 1,000 calls: 42,000 atomic USDC ($0.042) per call. The public facilitator at x402.org submitted each settlement and paid its gas. Transcript: [`demo-runs/baseSepolia-x402-6.json`](../demo-runs/baseSepolia-x402-6.json).
+
+| Call | Price asked | Outcome | Transaction |
+|---|---|---|---|
+| 1 | $0.042 | paid | [`0x55342ca1…`](https://sepolia.basescan.org/tx/0x55342ca1eaf4773030fbfd144ebd90cdb8a2b70fc7a575f23e1594dcb6e30d60) |
+| 2 | $0.042 | paid | [`0x75cd44e0…`](https://sepolia.basescan.org/tx/0x75cd44e07f7ea2855061d241b9cd9882611879728a52ddb8eab70b518c1233e4) |
+| 3 | $0.042 | paid | [`0x6ada6d11…`](https://sepolia.basescan.org/tx/0x6ada6d1196a1c5bb93fddc856f1b451f1ea1ef0c93b72f375e57722af88f5f17) |
+| surge | $0.084 | refused by the buyer before signing | none |
+
+`npm run verify:payments -- demo-runs/baseSepolia-x402-6.json` checks each transfer on-chain against the price and wallets read from the contract, and checks that no other buyer-to-seller USDC transfer happened during the run or the five minutes after it.

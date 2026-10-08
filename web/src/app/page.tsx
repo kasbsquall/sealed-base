@@ -1,4 +1,5 @@
 import {
+  ArrowRight,
   Coins,
   Eye,
   FileCode,
@@ -7,19 +8,27 @@ import {
   Handshake,
   Hash,
   IdentificationBadge,
+  Prohibit,
+  Receipt,
   Scales,
   Signature,
 } from "@phosphor-icons/react/dist/ssr";
 import { Ledger } from "@/components/Ledger";
 import { CopyCommand } from "@/components/CopyCommand";
 import { ExtLink } from "@/components/ExtLink";
-import { loadDeployment, loadRuns } from "@/lib/data";
-import { addressUrl, short, txUrl } from "@/lib/format";
+import { loadDeployment, loadPayments, loadRuns } from "@/lib/data";
+import { addressUrl, dollars, short, txUrl, usdc } from "@/lib/format";
 
 const SOURCIFY = (chainId: number, address: string) => `https://repo.sourcify.dev/${chainId}/${address}`;
 
 /** Mirrors scripts/verify-run.ts: four checks per commit, three for a settlement or one for an expiry, and one on the final contract state. */
 const verifyChecks = (rounds: number, settled: boolean) => rounds * 2 * 4 + (settled ? 3 : 1) + 1;
+
+/** The buyer's refusal reason from the transcript, in dollars when it is a price mismatch. */
+const refusalText = (reason: string, agreed: string) => {
+  const asked = /^asks (\d+) atomic USDC per call/.exec(reason)?.[1];
+  return asked ? `Asked ${usdc(asked)} per call; the deal says ${usdc(agreed)}` : reason;
+};
 
 /** The Cruce mark: the buyer's line rises, the seller's falls, and the square is where they settle. */
 function SealMark() {
@@ -43,6 +52,9 @@ export default function Page() {
   const minAverage = (policy.minAverageValue / 10 ** policy.decimals).toFixed(policy.decimals);
   const newcomerReviews = deployment.feedback.newcomer.length;
   const command = runs.map((r) => `RUN=${r.file} npm run verify:run`).join("\n");
+  const payments = loadPayments();
+  const paidCalls = payments.calls.filter((c) => c.paid);
+  const firstPayment = paidCalls[0];
 
   return (
     <>
@@ -66,6 +78,7 @@ export default function Page() {
             Each agent commits its offer to Base as a hash. An off-chain relay tells both sides only whether the offers
             crossed, meaning the buyer offered at least what the seller asked. If they cross, one transaction settles
             halfway between the two and makes that final pair public. If they never cross, no offer is ever made public.
+            After a deal, the buyer pays the settled price per call in USDC over x402.
           </p>
 
           <dl className="register rise" style={{ ["--b" as string]: 3 }}>
@@ -123,6 +136,69 @@ export default function Page() {
           </div>
           <div className="rise" style={{ ["--b" as string]: 5 }}>
             <Ledger runs={runs} />
+          </div>
+        </section>
+
+        <section className="wrap section" aria-labelledby="pay-title">
+          <div className="section-head">
+            <div>
+              <div className="eyebrow">Payment</div>
+              <h2 id="pay-title">Then the buyer paid the price it agreed to</h2>
+            </div>
+            <p>
+              Negotiation #{payments.negotiationId} settled at {dollars(payments.settledPrice)} per 1,000 calls. The buyer
+              agent then paid the seller&apos;s API per call over x402, in USDC on Base Sepolia. Before signing, it checks the
+              price and the payee against the settled deal on-chain, and refuses anything else.
+            </p>
+          </div>
+          <div className="payments">
+            <div className="pay-figure">
+              <div className="eyebrow">
+                <Coins size={14} weight="light" aria-hidden /> Paid per call
+              </div>
+              <p className="figure">{usdc(payments.usdcPerCall)}</p>
+              <div className="outcome-unit">
+                USDC, read from negotiation #{payments.negotiationId}: {dollars(payments.settledPrice)} per 1,000 calls
+              </div>
+              <dl className="pay-balance">
+                <dt className="eyebrow">Seller&apos;s USDC balance</dt>
+                <dd>
+                  {usdc(payments.sellerUsdcBefore)} <ArrowRight size={12} weight="light" aria-label="to" />{" "}
+                  {usdc(payments.sellerUsdcAfter)}
+                  <span className="note">
+                    {" "}
+                    after {paidCalls.length} paid {paidCalls.length === 1 ? "call" : "calls"}
+                  </span>
+                </dd>
+              </dl>
+            </div>
+            <ol className="pay-calls">
+              {payments.calls.map((c, i) => (
+                <li key={i} className={c.paid ? undefined : "refused"} style={{ ["--i" as string]: Math.min(i, 7) }}>
+                  <span className="n">{String(i + 1).padStart(2, "0")}</span>
+                  <div>
+                    <span className="endpoint">GET {new URL(c.url).pathname}</span>
+                    {c.paid ? (
+                      <span className="pay-state">
+                        <Receipt size={16} weight="light" aria-hidden /> Paid {usdc(payments.usdcPerCall)}
+                      </span>
+                    ) : (
+                      <span className="pay-state">
+                        <Prohibit size={16} weight="light" aria-hidden /> Refused before signing
+                      </span>
+                    )}
+                    {c.refusal && <span className="reason">{refusalText(c.refusal, payments.usdcPerCall)}</span>}
+                  </div>
+                  <div className="pay-tx">
+                    {c.transaction ? (
+                      <ExtLink href={txUrl(c.transaction)}>{short(c.transaction)}</ExtLink>
+                    ) : (
+                      <span className="none">No transaction</span>
+                    )}
+                  </div>
+                </li>
+              ))}
+            </ol>
           </div>
         </section>
 
@@ -251,6 +327,20 @@ export default function Page() {
                 <ExtLink href={addressUrl(deployment.registries.reputation)}>Reputation Registry {short(deployment.registries.reputation)}</ExtLink>
               </div>
             </li>
+            <li>
+              <span className="n">05</span>
+              <div>
+                <h3>Check the payments</h3>
+                <p>
+                  The script reads the price and both wallets from the contract, confirms each USDC transfer on Base
+                  Sepolia, and checks that no other payment from the buyer to the seller happened during the run.
+                </p>
+              </div>
+              <div className="check-body">
+                <ExtLink href={txUrl(firstPayment.transaction!)}>Payment 1: {short(firstPayment.transaction!)}</ExtLink>
+                <CopyCommand command={`npm run verify:payments -- ${payments.file}`} />
+              </div>
+            </li>
           </ol>
         </section>
 
@@ -277,8 +367,11 @@ export default function Page() {
             <li>
               <Coins size={22} weight="light" className="icon" />
               <div>
-                <h3>Testnet, and no payment</h3>
-                <p>Settlement records the agreed price on Base Sepolia. Moving funds is outside this version.</p>
+                <h3>Testnet money, demo data</h3>
+                <p>
+                  The payments move testnet USDC on Base Sepolia. The API the buyer pays for returns a labelled demo
+                  payload.
+                </p>
               </div>
             </li>
             <li>

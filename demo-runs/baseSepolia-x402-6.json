@@ -1,0 +1,47 @@
+{
+  "kind": "x402-payments",
+  "network": "baseSepolia",
+  "chainId": 84532,
+  "contract": "0x0C0E12C9C77FAcDa9302514A818DF232346e773A",
+  "negotiationId": "6",
+  "settledPrice": "4200",
+  "priceUnit": "US cents per 1,000 API calls",
+  "usdcPerCall": "42000",
+  "asset": "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+  "buyer": "0x9DE7DeEcCfFf2CA1958E48C3038b85e7130Bd240",
+  "seller": "0xB69841BBe445D059968f4949E5312B182eFF4726",
+  "facilitator": "https://x402.org/facilitator",
+  "note": "The buyer pays the seller's API per call over x402. Price and payee are read from the settled negotiation; the buyer refuses any other terms.",
+  "finishedAt": "2026-10-08T17:48:12.602Z",
+  "complete": true,
+  "startBlock": 47856710,
+  "endBlock": 47856714,
+  "calls": [
+    {
+      "url": "http://127.0.0.1:4021/market-data",
+      "paid": true,
+      "status": 200,
+      "transaction": "0x55342ca1eaf4773030fbfd144ebd90cdb8a2b70fc7a575f23e1594dcb6e30d60"
+    },
+    {
+      "url": "http://127.0.0.1:4021/market-data",
+      "paid": true,
+      "status": 200,
+      "transaction": "0x75cd44e07f7ea2855061d241b9cd9882611879728a52ddb8eab70b518c1233e4"
+    },
+    {
+      "url": "http://127.0.0.1:4021/market-data",
+      "paid": true,
+      "status": 200,
+      "transaction": "0x6ada6d1196a1c5bb93fddc856f1b451f1ea1ef0c93b72f375e57722af88f5f17"
+    },
+    {
+      "url": "http://127.0.0.1:4021/market-data-surge",
+      "paid": false,
+      "status": 402,
+      "refusal": "asks 84000 atomic USDC per call; negotiation 6 settled at 42000"
+    }
+  ],
+  "sellerUsdcBefore": "0",
+  "sellerUsdcAfter": "126000"
+}

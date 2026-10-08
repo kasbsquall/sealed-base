@@ -11,6 +11,12 @@ export const dollars = (cents: string | bigint) => {
   return `$${(n / 100).toFixed(2)}`;
 };
 
+/** Atomic USDC (6 decimals) as dollars, exact, with at least three decimals: 42000 is $0.042. */
+export const usdc = (atomic: string | bigint) => {
+  const fraction = (BigInt(atomic) % 1_000_000n).toString().padStart(6, "0").replace(/0{1,3}$/, "");
+  return `$${BigInt(atomic) / 1_000_000n}.${fraction}`;
+};
+
 export const STANCE_LABEL: Record<string, string> = {
   "open-with-room": "opens with room",
   concede: "concedes",

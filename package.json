@@ -13,7 +13,8 @@
     "demo:base-sepolia": "hardhat run scripts/run-demo.ts --network baseSepolia",
     "verify:run": "hardhat run scripts/verify-run.ts",
     "pay:x402": "tsx scripts/pay-at-settled-price.ts",
-    "verify:payments": "tsx scripts/verify-payments.ts"
+    "verify:payments": "tsx scripts/verify-payments.ts",
+    "typecheck": "tsc --noEmit -p tsconfig.typecheck.json"
   },
   "devDependencies": {
     "@nomicfoundation/hardhat-toolbox": "^5.0.0",

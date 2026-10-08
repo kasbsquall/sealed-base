@@ -1,0 +1,20 @@
+{
+  "//": "Typecheck only. The x402 packages ship CJS types that moduleResolution node cannot find; these paths point tsc at them. Kept out of tsconfig.json because tsx would apply them at runtime and load the .d.ts files.",
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "paths": {
+      "@x402/fetch": [
+        "./node_modules/@x402/fetch/dist/cjs/index.d.ts"
+      ],
+      "@x402/express": [
+        "./node_modules/@x402/express/dist/cjs/index.d.ts"
+      ],
+      "@x402/evm/*": [
+        "./node_modules/@x402/evm/dist/cjs/*/index.d.ts"
+      ],
+      "@x402/core/*": [
+        "./node_modules/@x402/core/dist/cjs/*/index.d.ts"
+      ]
+    }
+  }
+}

@@ -7,21 +7,7 @@
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
-    "resolveJsonModule": true,
-    "paths": {
-      "@x402/fetch": [
-        "./node_modules/@x402/fetch/dist/cjs/index.d.ts"
-      ],
-      "@x402/express": [
-        "./node_modules/@x402/express/dist/cjs/index.d.ts"
-      ],
-      "@x402/evm/*": [
-        "./node_modules/@x402/evm/dist/cjs/*/index.d.ts"
-      ],
-      "@x402/core/*": [
-        "./node_modules/@x402/core/dist/cjs/*/index.d.ts"
-      ]
-    }
+    "resolveJsonModule": true
   },
   "include": [
     "./hardhat.config.ts",
