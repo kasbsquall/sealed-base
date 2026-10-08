@@ -1,12 +1,12 @@
-import { ArrowSquareOut } from "@phosphor-icons/react/dist/ssr";
+import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr";
 
-/** A link to Basescan or Sourcify: accent colour, external icon, and a spoken hint that it opens a new tab. */
-export function ExtLink({ href, children }: { href: string; children: React.ReactNode }) {
+/** A link to Basescan, Sourcify or the repository: typed in carbon, with a spoken hint that it opens a new tab. */
+export function ExtLink({ href, children, className }: { href: string; children: React.ReactNode; className?: string }) {
   return (
-    <a className="chain-link" href={href} target="_blank" rel="noreferrer">
+    <a className={className ? `lk ${className}` : "lk"} href={href} target="_blank" rel="noreferrer">
       {children}
-      <ArrowSquareOut size={14} weight="light" aria-hidden />
-      <span className="sr-only">(opens in a new tab)</span>
+      <span className="sr"> (opens in a new tab)</span>
+      <ArrowUpRight size="1em" weight="light" aria-hidden />
     </a>
   );
 }

@@ -14,3 +14,6 @@ web/node_modules/
 web/.next/
 web/out/
 web/next-env.d.ts
+
+# Design exploration workspace
+.ui-direcciones/

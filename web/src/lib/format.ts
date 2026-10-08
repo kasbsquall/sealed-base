@@ -23,3 +23,21 @@ export const STANCE_LABEL: Record<string, string> = {
   hold: "holds",
   "final-at-limit": "goes to its limit",
 };
+
+/** A unix deadline in seconds as "2026-09-27 17:25 UTC". */
+export const utc = (seconds: string) =>
+  new Date(Number(seconds) * 1000).toISOString().slice(0, 16).replace("T", " ") + " UTC";
+
+/** "Demo: price per 1,000 calls …, in US cents" as "Price per 1,000 calls …". */
+export const terms = (raw: string) => {
+  const text = raw.replace(/^Demo:\s*/, "").replace(/,\s*in US cents$/, "");
+  return text.charAt(0).toUpperCase() + text.slice(1);
+};
+
+/** Explanations are written by code in cents; the page shows dollars. Same numbers, one unit. */
+export const inDollars = (text: string) => text.replace(/\b\d{2,}\b/g, (n) => dollars(n));
+
+const ORDINALS = ["first", "second", "third", "fourth", "fifth", "sixth", "seventh", "eighth", "ninth", "tenth"];
+export const ordinal = (n: number) => ORDINALS[n - 1] ?? `${n}th`;
+
+export const pad2 = (n: number) => String(n).padStart(2, "0");

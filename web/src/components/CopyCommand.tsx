@@ -5,7 +5,7 @@ import { Check, Copy } from "@phosphor-icons/react";
 
 const RESET_MS = 1800;
 
-export function CopyCommand({ command }: { command: string }) {
+export function CopyCommand({ command, label }: { command: string; label: string }) {
   const [state, setState] = useState<"idle" | "copied" | "failed">("idle");
   const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
 
@@ -21,16 +21,16 @@ export function CopyCommand({ command }: { command: string }) {
   };
 
   return (
-    <div className="command">
-      <pre tabIndex={0} role="region" aria-label="Verification commands">
-        {command}
+    <div className="cmd">
+      <pre tabIndex={0} role="region" aria-label={label}>
+        <code>{command}</code>
       </pre>
-      <button className="copy" onClick={copy}>
-        {state === "copied" ? <Check size={14} weight="light" aria-hidden /> : <Copy size={14} weight="light" aria-hidden />}
+      <button className="copy" type="button" data-state={state} onClick={copy}>
+        {state === "copied" ? <Check size="1.1em" weight="light" aria-hidden /> : <Copy size="1.1em" weight="light" aria-hidden />}
         {state === "copied" ? "Copied" : state === "failed" ? "Select and copy" : "Copy"}
       </button>
-      <span className="sr-only" role="status">
-        {state === "copied" ? "Commands copied to the clipboard" : state === "failed" ? "Copy failed, select the text instead" : ""}
+      <span className="sr" role="status">
+        {state === "copied" ? "Command copied to the clipboard" : state === "failed" ? "Copy failed, select the text instead" : ""}
       </span>
     </div>
   );
