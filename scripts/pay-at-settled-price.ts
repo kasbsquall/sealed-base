@@ -24,6 +24,7 @@ import { createBuyerClient, type CallResult } from "../agents/x402/buyerClient";
 
 const RPC = process.env.BASE_SEPOLIA_RPC_URL ?? "https://sepolia.base.org";
 const PORT = 4021;
+const RECEIPT_TIMEOUT_MS = 120_000;
 const ERC20_ABI = ["function balanceOf(address) view returns (uint256)"];
 
 async function main() {
@@ -57,24 +58,33 @@ async function main() {
   const base = `http://127.0.0.1:${PORT}`;
   const call = createBuyerClient(keys.buyer as `0x${string}`, deal);
 
+  // The verifier scans this block range for every buyer-to-seller transfer.
+  const startBlock = await provider.getBlockNumber();
   const calls: CallResult[] = [];
+  let failure: Error | undefined;
   try {
     for (let i = 0; i < paidCalls; i++) {
       const result = await call(`${base}/market-data`);
       calls.push(result);
-      console.log(`  call ${i + 1}: ${result.paid ? `paid, tx ${result.transaction}` : `not paid (HTTP ${result.status})`}`);
+      console.log(`  call ${i + 1}: ${result.paid ? `paid, tx ${result.transaction}` : `not paid (HTTP ${result.status}) ${result.problem ?? ""}`}`);
       if (!result.paid) throw new Error("a call at the settled price was not paid; stopping");
     }
     const surge = await call(`${base}/market-data-surge`);
     calls.push(surge);
-    console.log(`  surge: ${surge.paid ? "PAID (the guard failed)" : `refused: ${surge.refusal}`}`);
-    if (surge.paid) throw new Error("the buyer paid above the settled price");
+    console.log(`  surge: ${surge.refusal ? `refused: ${surge.refusal}` : "NOT REFUSED (the guard failed)"}`);
+    if (!surge.refusal) throw new Error("the buyer did not refuse a price above the settled one");
+
+    // The seller's report is only a claim; each settlement must succeed on-chain.
+    for (const c of calls.filter((c) => c.paid)) {
+      const receipt = await provider.waitForTransaction(c.transaction!, 1, RECEIPT_TIMEOUT_MS);
+      if (!receipt || receipt.status !== 1) throw new Error(`payment ${c.transaction} did not succeed on-chain`);
+    }
+  } catch (error) {
+    failure = error instanceof Error ? error : new Error(String(error));
   } finally {
     server.close();
   }
-
-  // Each settlement is a separate transaction; wait until all are mined.
-  for (const c of calls.filter((c) => c.transaction)) await provider.waitForTransaction(c.transaction!);
+  const endBlock = await provider.getBlockNumber();
   const sellerAfter: bigint = await usdc.balanceOf(deal.seller);
 
   const transcript = {
@@ -92,6 +102,10 @@ async function main() {
     facilitator,
     note: "The buyer pays the seller's API per call over x402. Price and payee are read from the settled negotiation; the buyer refuses any other terms.",
     finishedAt: new Date().toISOString(),
+    complete: !failure,
+    ...(failure ? { error: failure.message } : {}),
+    startBlock,
+    endBlock,
     calls,
     sellerUsdcBefore: sellerBefore.toString(),
     sellerUsdcAfter: sellerAfter.toString(),
@@ -99,6 +113,7 @@ async function main() {
   const file = `demo-runs/baseSepolia-x402-${negotiationId}.json`;
   fs.writeFileSync(file, JSON.stringify(transcript, null, 2) + "\n");
   console.log(`Seller USDC ${usdcToMoney(sellerBefore)} -> ${usdcToMoney(sellerAfter)} · ${file}`);
+  if (failure) throw failure;
 }
 
 main().catch((error) => {

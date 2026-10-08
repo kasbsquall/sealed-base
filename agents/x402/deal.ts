@@ -1,4 +1,4 @@
-import { Contract, type Provider } from "ethers";
+import { Contract, id, type Provider } from "ethers";
 
 /**
  * What a settled Sealed negotiation means for payment, read from the contract.
@@ -13,8 +13,19 @@ export const BASE_SEPOLIA = "eip155:84532" as const;
 export const USDC_BASE_SEPOLIA = "0x036CbD53842c5426634e7929541eC2318f3dCF7e";
 const USDC_DECIMALS = 6n;
 
-/** Demo prices are US cents per 1,000 API calls. */
+/**
+ * The terms the demo negotiations settle under. Its hash is the negotiation's
+ * termsSchema, so a price is only read as "US cents per 1,000 calls" when the
+ * negotiation was opened under these exact terms.
+ */
+export const API_TERMS = "Demo: price per 1,000 calls to a market-data API, 30-day term, in US cents";
 const CALLS_PER_PRICE_UNIT = 1000n;
+/**
+ * The longest a signed payment may stay valid. x402 servers default to 300 s;
+ * a longer window would let a seller hold the authorization and settle it long
+ * after the call it paid for.
+ */
+export const MAX_PAYMENT_WINDOW_SECONDS = 300;
 const CENTS_PER_DOLLAR = 100n;
 const STATUS_SETTLED = 3n;
 
@@ -53,6 +64,7 @@ export async function readDeal(provider: Provider, contract: string, negotiation
   const sealed = new Contract(contract, GET_NEGOTIATION_ABI, provider);
   const n = await sealed.getNegotiation(negotiationId);
   if (BigInt(n.status) !== STATUS_SETTLED) throw new Error(`negotiation ${negotiationId} has not settled`);
+  if (n.termsSchema !== id(API_TERMS)) throw new Error(`negotiation ${negotiationId} was not opened under the API terms`);
   return {
     negotiationId,
     contract,
@@ -70,6 +82,7 @@ export interface Requirement {
   asset: string;
   amount: string;
   payTo: string;
+  maxTimeoutSeconds: number;
 }
 
 /**
@@ -86,6 +99,9 @@ export function refusalReason(requirement: Requirement, deal: Deal): string | un
   }
   if (BigInt(requirement.amount) !== deal.usdcPerCall) {
     return `asks ${requirement.amount} atomic USDC per call; negotiation ${deal.negotiationId} settled at ${deal.usdcPerCall}`;
+  }
+  if (!(requirement.maxTimeoutSeconds > 0 && requirement.maxTimeoutSeconds <= MAX_PAYMENT_WINDOW_SECONDS)) {
+    return `wants the payment valid for ${requirement.maxTimeoutSeconds} s; the limit is ${MAX_PAYMENT_WINDOW_SECONDS} s`;
   }
   return undefined;
 }

@@ -5,7 +5,7 @@ import type { AddressInfo } from "net";
 import { Wallet } from "ethers";
 import { BASE_SEPOLIA, USDC_BASE_SEPOLIA, refusalReason, usdcPerCall, usdcToMoney, type Deal } from "../agents/x402/deal";
 import { createSellerService } from "../agents/x402/sellerService";
-import { createBuyerClient } from "../agents/x402/buyerClient";
+import { createBuyerClient, settlementProblem } from "../agents/x402/buyerClient";
 
 const buyerKey = Wallet.createRandom();
 const seller = Wallet.createRandom().address;
@@ -19,7 +19,7 @@ const deal: Deal = {
   usdcPerCall: usdcPerCall(4200n),
 };
 
-const honest = { scheme: "exact", network: BASE_SEPOLIA, asset: USDC_BASE_SEPOLIA, amount: "42000", payTo: seller };
+const honest = { scheme: "exact", network: BASE_SEPOLIA, asset: USDC_BASE_SEPOLIA, amount: "42000", payTo: seller, maxTimeoutSeconds: 300 };
 
 describe("x402 payment at the settled price", () => {
   describe("price conversion", () => {
@@ -59,6 +59,26 @@ describe("x402 payment at the settled price", () => {
       expect(refusalReason({ ...honest, asset: Wallet.createRandom().address }, deal)).to.match(/not USDC/);
       expect(refusalReason({ ...honest, network: "eip155:8453" }, deal)).to.match(/not Base Sepolia/);
       expect(refusalReason({ ...honest, scheme: "upto" }, deal)).to.match(/not exact/);
+    });
+
+    it("refuses a payment that would stay valid longer than five minutes", () => {
+      expect(refusalReason({ ...honest, maxTimeoutSeconds: 1_000_000_000 }, deal)).to.match(/limit is 300 s/);
+      expect(refusalReason({ ...honest, maxTimeoutSeconds: 0 }, deal)).to.match(/limit is 300 s/);
+    });
+  });
+
+  describe("the buyer's reading of the seller's settlement report", () => {
+    const report = { success: true, transaction: `0x${"ab".repeat(32)}`, network: BASE_SEPOLIA, payer: buyerKey.address };
+
+    it("accepts a successful settlement by the buyer on Base Sepolia", () => {
+      expect(settlementProblem(report, deal)).to.equal(undefined);
+    });
+
+    it("does not count a failed settlement, a malformed hash, another network or another payer", () => {
+      expect(settlementProblem({ ...report, success: false, errorReason: "insufficient_funds" }, deal)).to.match(/insufficient_funds/);
+      expect(settlementProblem({ ...report, transaction: "0x1234" }, deal)).to.match(/not a transaction hash/);
+      expect(settlementProblem({ ...report, network: "eip155:8453" }, deal)).to.match(/not Base Sepolia/);
+      expect(settlementProblem({ ...report, payer: Wallet.createRandom().address }, deal)).to.match(/not the buyer/);
     });
   });
 

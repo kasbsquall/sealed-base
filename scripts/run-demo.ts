@@ -5,6 +5,7 @@ import { NegotiatorAgent, type Mandate } from "../agents/negotiator/negotiator";
 import { ClearingRelay } from "../agents/relay/clearingRelay";
 import { LocalPartyWallet } from "../agents/wallets/partyWallet";
 import { OpenAICompatibleClient, llmConfigFromEnv } from "../agents/llm/client";
+import { API_TERMS } from "../agents/x402/deal";
 
 /**
  * Runs the two demo negotiations on a live network with real LLM agents:
@@ -22,7 +23,7 @@ import { OpenAICompatibleClient, llmConfigFromEnv } from "../agents/llm/client";
  *   DEMO_SCENARIOS=deal npx hardhat run ...     (run only one)
  */
 
-const TERMS = "Demo: price per 1,000 calls to a market-data API, 30-day term, in US cents";
+const TERMS = API_TERMS;
 const UNIT = "US cents per 1,000 API calls";
 const REFERENCE = 4000n;
 const MAX_ROUNDS = 3;
