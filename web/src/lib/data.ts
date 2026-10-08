@@ -103,3 +103,10 @@ export function loadPayments(): Payments {
 export function loadDeployment(): Deployment {
   return read<Deployment>("deployments", "baseSepolia.json");
 }
+
+/** Negotiation #8: the same deal with referee and agents as separate processes. Cited as evidence in the limits. */
+const SEPARATED = "baseSepolia-deal-8-separated.json";
+
+export function loadSeparated(): Run {
+  return { ...read<Omit<Run, "file">>("demo-runs", SEPARATED), file: `demo-runs/${SEPARATED}` };
+}

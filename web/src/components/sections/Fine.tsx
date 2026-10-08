@@ -11,6 +11,7 @@ import {
   ListNumbers,
   Percent,
   Receipt,
+  Scroll,
   Scales,
   Signature,
   Stamp,
@@ -39,51 +40,82 @@ const money = (atomicUsdc: bigint) => `$${(atomicUsdc / 1_000_000n).toLocaleStri
 export function Mechanism({ deployment }: { deployment: Deployment }) {
   const { policy } = deployment;
   const minAverage = (policy.minAverageValue / 10 ** policy.decimals).toFixed(policy.decimals);
-  const steps: { icon: Icon; title: string; text: string; where: string }[] = [
+  const rows: { icon: Icon; title: string; text: string; where: string; sees: string; sealed?: boolean }[] = [
     {
       icon: IdentificationBadge,
       title: "Admit",
-      text: `The gate reads the ERC-8004 registries. An agent may negotiate only with at least ${policy.minFeedbackCount} reviews from ${policy.reviewers.length} approved reviewer addresses, with an average score of at least ${minAverage}.`,
+      text: `The gate reads the ERC-8004 registries. An agent may negotiate only with at least ${policy.minFeedbackCount} reviews from any of ${policy.reviewers.length} approved reviewers, with an average score of at least ${minAverage}.`,
       where: "ReputationGate.sol",
+      sees: "The negotiation opening, once both agents clear the gate",
     },
     {
       icon: Hash,
       title: "Commit",
-      text: "Each round, both agents send Base a hash of their offer plus a random 32-byte secret, the salt, so nobody can find the price by hashing likely numbers. The offer itself stays with the agent.",
+      text: "Each round, both agents send Base a hash of their offer plus a random 32-byte secret, the salt, so nobody can find the price by hashing likely numbers.",
       where: "SealedNegotiation.commitOffer",
+      sees: "One 32-byte hash per offer, never the price",
+      sealed: true,
     },
     {
       icon: ArrowsInLineHorizontal,
       title: "Clear",
-      text: "The referee checks each agent's offer and salt against its hash on-chain and tells both sides one bit: crossed, or not.",
+      text: "The referee (clearingRelay.ts) checks each agent's offer and salt against its hash on-chain and tells both sides one bit: the offers meet, or not.",
       where: "agents/relay/clearingRelay.ts",
+      sees: "Nothing: the referee answers off-chain",
     },
     {
       icon: Stamp,
       title: "Settle",
-      text: "When the numbers cross, both agents sign over the exact pair of hashes, and one transaction settles at the midpoint. There is no separate reveal step to back out of.",
+      text: "When the offers meet, both agents sign over the exact pair of hashes, and one transaction settles at the midpoint. There is no separate reveal step to back out of.",
       where: "SealedNegotiation.settle",
+      sees: "Both final offers and the midpoint price, in one transaction",
     },
   ];
   return (
     <div className="paper paper-w doc">
-      <ol className="mech">
-        {steps.map((s, i) => (
-          <li key={s.title}>
-            <div className="mk" aria-hidden="true">
-              <span className="sq" />
-              <span className="rule" />
-            </div>
-            <span className="no">{pad2(i + 1)}</span>
-            <h3>
-              <s.icon size="1.1em" weight="light" aria-hidden />
-              {s.title}
-            </h3>
-            <p>{s.text}</p>
-            <code>{s.where}</code>
-          </li>
-        ))}
-      </ol>
+      <div className="doc-top">
+        <p className="doc-title">
+          <ArrowUUpLeft size="1.1em" weight="light" aria-hidden />
+          Back of the form: how each step is filed
+        </p>
+      </div>
+      <table className="mech">
+        <caption className="sr">The four steps of a sealed negotiation, where each runs, and what Base records</caption>
+        <thead>
+          <tr>
+            <th scope="col">Step</th>
+            <th scope="col">Contract or file</th>
+            <th scope="col">What the chain sees</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((r, i) => (
+            <tr key={r.title}>
+              <th scope="row">
+                <span className="mech-head">
+                  <span className="no">{i + 1}</span>
+                  <span className="mech-step">
+                    <span className="mech-name">
+                      <r.icon size="1.1em" weight="light" aria-hidden />
+                      {r.title}
+                    </span>
+                    <span className="mech-text">{r.text}</span>
+                  </span>
+                </span>
+              </th>
+              <td>
+                <code>{r.where}</code>
+              </td>
+              <td>
+                {r.sealed && (
+                  <span className="blk blank" aria-hidden="true" />
+                )}
+                <span className="sees">{r.sees}</span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
     </div>
   );
 }
@@ -142,7 +174,7 @@ export function Verify({ runs, deployment, payments }: { runs: Run[]; deployment
     {
       icon: UsersThree,
       title: "Check who may negotiate",
-      body: `The gate reads the canonical ERC-8004 registries. A third agent, #${deployment.agents.newcomer.agentId}, has ${newcomerReviews} ${newcomerReviews === 1 ? "review" : "reviews"}, below the minimum of ${policy.minFeedbackCount}, and the gate refused it in our smoke test.`,
+      body: `The gate reads the canonical ERC-8004 registries. A third agent, #${deployment.agents.newcomer.agentId}, has ${newcomerReviews} ${newcomerReviews === 1 ? "review" : "reviews"}, below the minimum of ${policy.minFeedbackCount}, and the gate rejected it in our smoke test.`,
       extra: (
         <div className="links">
           <ExtLink href={addressUrl(deployment.registries.identity)}>
@@ -237,7 +269,7 @@ export function Business({ deal, payments }: { deal: Run; payments: Payments }) 
               A buyer agent that cannot be squeezed is willing to commit to volume. In negotiation #{deal.negotiationId}{" "}
               the seller would have accepted {dollars(deal.agents.seller.limit)} per 1,000 calls and closed at{" "}
               {dollars(settled)}, while the buyer paid {dollars(buyerLimit - settled)} less than its{" "}
-              {dollars(buyerLimit)} ceiling. At {EXAMPLE_CALLS.toLocaleString("en-US")} calls a month at{" "}
+              {dollars(buyerLimit)} limit. In an example month of {EXAMPLE_CALLS.toLocaleString("en-US")} calls at{" "}
               {usdc(payments.usdcPerCall)}, the seller earns {money(sellerEarns)} and Sealed{" "}
               {money(fee)}.
             </p>
@@ -279,12 +311,21 @@ export function Business({ deal, payments }: { deal: Run; payments: Payments }) 
   );
 }
 
-export function Limits({ deployment }: { deployment: Deployment }) {
-  const limits: { icon: Icon; title: string; text: string }[] = [
+export function Limits({ deployment, separated }: { deployment: Deployment; separated: Run }) {
+  const limits: { icon: Icon; title: string; text: React.ReactNode }[] = [
     {
       icon: Eye,
       title: "The referee is trusted with privacy",
-      text: "It sees both offers each round. It cannot forge or alter a deal, because settlement needs both agents' signatures over the exact pair of hashes. In negotiation #8 the referee ran as its own process, holding no agent key, and reached each agent over HTTP; it still sees both numbers. The production path is an attested TEE or threshold encryption.",
+      text: (
+        <>
+          It sees both offers each round. It cannot forge or alter a deal, because settlement needs both agents&apos;
+          signatures over the exact pair of hashes. In negotiation #{separated.negotiationId} the referee ran as its own
+          process, holding no agent key, and reached each agent over HTTP; it still sees both numbers. The production
+          path is an attested enclave (TEE) or threshold encryption. Transcript:{" "}
+          <span className="mono">{separated.file}</span>,{" "}
+          <ExtLink href={txUrl(separated.createTx)}>created {short(separated.createTx)}</ExtLink>
+        </>
+      ),
     },
     {
       icon: Flask,
@@ -304,17 +345,26 @@ export function Limits({ deployment }: { deployment: Deployment }) {
   ];
   return (
     <div className="paper paper-p doc">
-      <div className="limits">
-        {limits.map((l) => (
-          <div key={l.title}>
-            <h3>
-              <l.icon size="1.1em" weight="light" aria-hidden />
-              {l.title}
-            </h3>
-            <p>{l.text}</p>
-          </div>
-        ))}
+      <div className="doc-top">
+        <p className="doc-title">
+          <Scroll size="1.1em" weight="light" aria-hidden />
+          Terms
+        </p>
       </div>
+      <ol className="checks terms">
+        {limits.map((l, i) => (
+          <li key={l.title}>
+            <span className="no">
+              {pad2(i + 1)}
+              <l.icon size="1.25em" weight="light" aria-hidden />
+            </span>
+            <div>
+              <h3>{l.title}</h3>
+              <p>{l.text}</p>
+            </div>
+          </li>
+        ))}
+      </ol>
     </div>
   );
 }

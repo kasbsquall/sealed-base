@@ -17,6 +17,7 @@ import {
 } from "@phosphor-icons/react";
 import type { Round, Run, Side } from "@/lib/data";
 import { STANCE_LABEL, addressUrl, dollars, inDollars, short, txUrl, utc } from "@/lib/format";
+import { meetLabel } from "@/lib/view";
 import { LinkOut } from "../LinkOut";
 import { Stamp } from "../replay/Typed";
 import { LiveLine } from "./LiveLine";
@@ -101,7 +102,7 @@ export function Record({ runs }: { runs: Run[] }) {
             <label>
               <input type="radio" name="lens" value="chain" id="lens-chain" />
               <Cube size="1.1em" weight="light" aria-hidden />
-              What the chain saw
+              What Base recorded
             </label>
           </fieldset>
         </div>
@@ -143,7 +144,7 @@ function Order({ run, live }: { run: Run; live: Live | undefined }) {
           <div className="fld">
             <span className="lbl">Rounds</span>
             <span className="ty">
-              {run.rounds.length}, {crossedIn ? `crossed in round ${crossedIn}` : "none crossed"}
+              {run.rounds.length}, {crossedIn ? `offers met in round ${crossedIn}` : "offers never met"}
             </span>
           </div>
         </div>
@@ -151,12 +152,12 @@ function Order({ run, live }: { run: Run; live: Live | undefined }) {
 
       <div className="r-grid">
         <div className="hd">
-          <h3>Round</h3>
+          <p className="hd-l">Round</p>
         </div>
         <Party run={run} role="buyer" />
         <div className="hd">
-          <h3>Referee</h3>
-          <p className="k">Checks each offer against its hash, answers crossed or not</p>
+          <p className="hd-l">Referee</p>
+          <p className="k">Checks each offer against its hash, answers only whether the offers meet</p>
           <p className="c">Runs off-chain; its answers are not recorded on Base</p>
         </div>
         <Party run={run} role="seller" />
@@ -174,12 +175,12 @@ function Party({ run, role }: { run: Run; role: "buyer" | "seller" }) {
   const agent = run.agents[role];
   return (
     <div className="hd">
-      <h3>{role === "buyer" ? "Buyer" : "Seller"}</h3>
+      <p className="hd-l">{role === "buyer" ? "Buyer" : "Seller"}</p>
       <p>ERC-8004 agent #{agent.agentId}</p>
       <div className="k">
         <span className="ty">
           {role === "buyer" ? "Will pay at most " : "Will accept no less than "}
-          {dollars(agent.limit)}
+          {dollars(agent.limit)} per 1,000 calls
         </span>
         <p>Private to this agent, published here for the demo.</p>
       </div>
@@ -213,9 +214,9 @@ function RoundRow({ run, round }: { run: Run; round: Round }) {
             ) : (
               <ArrowsLeftRight size="1.1em" weight="light" aria-hidden />
             )}
-            {round.crossed ? "Crossed" : "No cross"}
+            {meetLabel(round.crossed)}
           </span>
-          <p className="why">{round.crossed ? "Buyer at or above seller" : "Both sides learn only this"}</p>
+          <p className="why">{round.crossed ? "The buyer offers at least what the seller asks" : "Both sides learn only this"}</p>
         </div>
         <div className="c">
           <span className="verdict">
@@ -287,6 +288,7 @@ function Outcome({ run, live }: { run: Run; live: Live | undefined }) {
           <Stamp
             lines={["Settled", dollars(run.settledPrice!), "per 1,000 calls"]}
             label={`Settled at ${dollars(run.settledPrice!)} per 1,000 calls`}
+            tone="carbon"
           />
         ) : (
           <Stamp lines={["Expired", undefined, "No offer published"]} label="Expired, no offer published" tone="carbon" />
@@ -296,12 +298,12 @@ function Outcome({ run, live }: { run: Run; live: Live | undefined }) {
         <p className="big-line">
           {settled
             ? `Settled on Base Sepolia at ${dollars(run.settledPrice!)} per 1,000 API calls, halfway between the buyer's ${dollars(last.buyer.offer)} and the seller's ${dollars(last.seller.offer)}`
-            : "Never crossed. The negotiation expired with no offer on-chain."}
+            : "The offers never met. The negotiation expired with no offer on-chain."}
         </p>
         <p className="k">
           {settled
             ? `The buyer could pay up to ${dollars(run.agents.buyer.limit)} and the seller would take ${dollars(run.agents.seller.limit)} or more. Neither knew the other's limit. They met in round ${last.round}, when both committed at their limits.`
-            : `The buyer could pay at most ${dollars(run.agents.buyer.limit)}; the seller would take no less than ${dollars(run.agents.seller.limit)}. No price satisfies both, so none of the ${run.rounds.length} rounds crossed and the negotiation expired at its deadline.`}
+            : `The buyer could pay at most ${dollars(run.agents.buyer.limit)}; the seller would take no less than ${dollars(run.agents.seller.limit)}. No price satisfies both, so the offers met in none of the ${run.rounds.length} rounds and the negotiation expired at its deadline.`}
         </p>
         <p className="c">
           {settled
@@ -317,12 +319,13 @@ function Outcome({ run, live }: { run: Run; live: Live | undefined }) {
           <LinkOut href={txUrl(run.createTx)}>Created {short(run.createTx)}</LinkOut>
         </div>
         <LiveLine live={live} />
+        <p className="nojs-note">The live read needs JavaScript. Every transaction link above opens on Basescan.</p>
         <p className="model">
           <Brain size="1.1em" weight="light" aria-hidden />
           <span>
             Each agent decided with <span className="mono">{run.model}</span> running locally, with up to two model calls
-            per round and only its own mandate in view. The model picks a stance and a number. Code enforces the mandate
-            and writes each explanation. Transcript: <span className="mono">{run.file}</span>
+            per round and only its own limit in view. The model picks a stance and a number. Code enforces the limit and
+            writes each explanation. Transcript: <span className="mono">{run.file}</span>
           </span>
         </p>
       </div>

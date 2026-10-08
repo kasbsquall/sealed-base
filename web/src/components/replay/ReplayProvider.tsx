@@ -6,7 +6,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState } f
  * Replay of negotiation order No. 6. The server renders the final state, so
  * the page reads correctly without JavaScript and with reduced motion. Replay
  * blanks every slot, then retypes them step by step on all three copies and
- * ticks the order log in sync.
+ * ticks the order log in sync. While it runs, the same button skips to the end.
  */
 
 export type SlotState = "blank" | "typing" | "done";
@@ -24,7 +24,10 @@ interface ReplayContextValue {
   current: number;
   total: number;
   steps: ReplayStepInfo[];
+  /** Shown in the status line after Replay is pressed with reduced motion. */
+  note: string;
   replay: () => void;
+  skip: () => void;
 }
 
 const ReplayContext = createContext<ReplayContextValue | null>(null);
@@ -49,29 +52,43 @@ export function ReplayProvider({ steps, children }: { steps: ReplayStepInfo[]; c
   const [slots, setSlots] = useState<Record<string, SlotState>>({});
   const [running, setRunning] = useState(false);
   const [current, setCurrent] = useState(total);
+  const [note, setNote] = useState("");
   const [announcement, setAnnouncement] = useState("");
-  const alive = useRef(true);
-  const busy = useRef(false);
+  /** Each run gets a number; a skip or unmount bumps it, and the stale loop stops at its next await. */
+  const generation = useRef(0);
 
   useEffect(() => {
-    alive.current = true;
+    const gen = generation;
     return () => {
-      alive.current = false;
+      gen.current += 1;
     };
   }, []);
 
-  const last = steps[total - 1];
-  const finalMessage = `Replay finished. Step ${total} of ${total}: ${last.title}.`;
+  const finalMessage = `All ${total} steps on file.`;
 
-  const replay = useCallback(async () => {
-    if (busy.current) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+  const finish = useCallback(
+    (message: string) => {
+      generation.current += 1;
       setSlots({});
       setCurrent(total);
-      setAnnouncement(`Shown in its final state. ${finalMessage}`);
+      setRunning(false);
+      setAnnouncement(message);
+    },
+    [total],
+  );
+
+  const skip = useCallback(() => finish(`Skipped to the end. ${finalMessage}`), [finish, finalMessage]);
+
+  const replay = useCallback(async () => {
+    if (running) return;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      const message = `Shown in its final state, without motion. ${finalMessage}`;
+      setNote(message);
+      finish(message);
       return;
     }
-    busy.current = true;
+    const gen = ++generation.current;
+    setNote("");
     setRunning(true);
     setCurrent(0);
     setSlots(Object.fromEntries(steps.map((s) => [s.slot, "blank" as const])));
@@ -79,25 +96,21 @@ export function ReplayProvider({ steps, children }: { steps: ReplayStepInfo[]; c
     await wait(LEAD_MS);
 
     for (const step of steps) {
-      if (!alive.current) return;
+      if (gen !== generation.current) return;
       setCurrent(step.n);
       setSlots((prev) => ({ ...prev, [step.slot]: "typing" }));
       await nextFrame();
       const end = slotEnd(step.slot);
       const hasStamp = document.querySelector(`[data-slot="${step.slot}"] .stamp`) !== null;
       await wait(end + (hasStamp ? STAMP_HOLD_MS : STEP_GAP_MS));
-      if (!alive.current) return;
+      if (gen !== generation.current) return;
       setSlots((prev) => ({ ...prev, [step.slot]: "done" }));
     }
-
-    setCurrent(total);
-    setRunning(false);
-    setAnnouncement(finalMessage);
-    busy.current = false;
-  }, [steps, total, finalMessage]);
+    finish(`Replay finished. ${finalMessage}`);
+  }, [running, steps, total, finish, finalMessage]);
 
   return (
-    <ReplayContext.Provider value={{ slots, running, current, total, steps, replay }}>
+    <ReplayContext.Provider value={{ slots, running, current, total, steps, note, replay, skip }}>
       {children}
       <p className="sr" role="status" aria-live="polite">
         {announcement}
@@ -112,10 +125,10 @@ export function useReplay() {
   return ctx;
 }
 
-/** The status line text, the same on every copy and in the log. */
+/** The status line text, the same on every copy. At rest it says the record is complete, never an error. */
 export function useStatusText() {
-  const { current, total, steps, running } = useReplay();
-  if (running && current === 0) return "Starting the replay";
-  const step = steps[Math.max(1, current) - 1];
-  return `Step ${Math.max(1, current)} of ${total}: ${step.title}`;
+  const { current, total, steps, running, note } = useReplay();
+  if (!running) return note || `All ${total} steps on file. Replay types them again.`;
+  if (current === 0) return "Starting the replay";
+  return `Step ${current} of ${total}: ${steps[current - 1].title}`;
 }

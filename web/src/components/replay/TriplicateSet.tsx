@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
-import { Cube, Keyboard, MagnifyingGlass, Play, Storefront, User, type Icon } from "@phosphor-icons/react";
-import type { OrderRound, OrderView, SealedSide } from "@/lib/view";
+import { Cube, FastForward, MagnifyingGlass, Play, Storefront, User, type Icon } from "@phosphor-icons/react";
+import { meetLabel, type OrderRound, type OrderView, type SealedSide } from "@/lib/view";
 import { LinkOut } from "../LinkOut";
 import { SealMark } from "../SealMark";
 import { useReplay, useStatusText } from "./ReplayProvider";
@@ -143,11 +143,8 @@ function Sheet({ order, copy, n, name, isFront }: { order: OrderView; copy: Copy
         <div className="f-left">
           <Purpose className="h1">Your agent can haggle without showing its budget first.</Purpose>
           <p className="instr">
-            Each agent locks its offer on Base in sealed form. A referee service, which does see both offers, tells the
-            agents only whether a deal is possible. When it is, one transaction settles halfway between the two final
-            offers, and the buyer pays that price each time it calls the seller&apos;s API, in USDC (a digital dollar)
-            over x402, an open standard for paying per request. When it never is, no offer is ever made public. Below are
-            two real negotiations between AI agents on Base Sepolia, a test network, and the payment that followed.
+            Each agent locks a hashed offer on Base. A referee says only whether the offers meet; one transaction
+            settles at the midpoint, and the buyer then pays per call over x402.
           </p>
           <div className="f-act">
             <ReplayButton id={order.id} describedBy={status} />
@@ -157,6 +154,12 @@ function Sheet({ order, copy, n, name, isFront }: { order: OrderView; copy: Copy
             </a>
           </div>
           <Status id={status} />
+          <dl className="pay">
+            <PayLine slot="allowance" label="Daily allowance" text={order.allowance.line} link={order.allowance.tx} />
+            <PayLine slot="paid" label="Paid" text={order.paid} />
+            {order.refused && <PayLine slot="refused" label="Refused" text={order.refused} />}
+            {order.overBudget && <PayLine slot="over" label={order.nextDraw} text={order.overBudget} />}
+          </dl>
         </div>
 
         <div className="f-right">
@@ -180,13 +183,6 @@ function Sheet({ order, copy, n, name, isFront }: { order: OrderView; copy: Copy
           </table>
 
           <SettleLine order={order} />
-
-          <dl className="pay">
-            <PayLine slot="budget" label="Daily budget" text={order.budget.line} link={order.budget.tx} />
-            <PayLine slot="paid" label="Paid" text={order.paid} />
-            {order.refused && <PayLine slot="refused" label="Refused" text={order.refused} />}
-            {order.overBudget && <PayLine slot="over" label={order.nextDraw} text={order.overBudget} />}
-          </dl>
         </div>
       </div>
     </>
@@ -221,8 +217,8 @@ const owns = (copy: Copy, side: "buyer" | "seller") => copy === side;
 
 function columnHead(copy: Copy, side: "buyer" | "seller") {
   const who = side === "buyer" ? "Buyer offer" : "Seller offer";
-  if (copy === "chain") return `${who}, as a hash`;
-  return owns(copy, side) ? who : `${who}, not on this copy`;
+  if (copy === "chain") return side === "buyer" ? "Buyer hash" : "Seller hash";
+  return owns(copy, side) ? `${who} per 1,000 calls` : `${who}, not on this copy`;
 }
 
 /** One sealed offer cell. Plain functions, called in render order, so the carriage timing stays deterministic. */
@@ -257,7 +253,7 @@ function offerCell(copy: Copy, side: "buyer" | "seller", offer: SealedSide, seq:
 
 function RoundRow({ round, copy }: { round: OrderRound; copy: Copy }) {
   const seq = sequence();
-  const answer = copy === "chain" ? "Answered off-chain" : round.crossed ? "Crossed" : "No cross";
+  const answer = copy === "chain" ? "Answered off-chain" : meetLabel(round.meet);
   const buyer = offerCell(copy, "buyer", round.buyer, seq);
   const answerAt = seq.text(answer);
   const seller = offerCell(copy, "seller", round.seller, seq);
@@ -319,13 +315,23 @@ function PayLine({ slot, label, text, link }: { slot: string; label: string; tex
 }
 
 function ReplayButton({ id, describedBy }: { id: string; describedBy: string }) {
-  const { replay, running, current, total } = useReplay();
+  const { replay, skip, running, current, total } = useReplay();
+  const label = running ? "Skip to end" : `Replay negotiation #${id}`;
+  const sub = running ? `Typing step ${Math.max(1, current)} of ${total}` : `${total} steps, typed onto all three copies`;
   return (
-    <button className="replay-btn" type="button" aria-disabled={running} aria-describedby={describedBy} onClick={replay}>
-      <span className="box">{running ? <Keyboard size="1.1em" weight="light" aria-hidden /> : <Play size="1.1em" weight="light" aria-hidden />}</span>
-      <span>
-        <span className="bl">{running ? `Replaying, step ${Math.max(1, current)} of ${total}` : `Replay negotiation #${id}`}</span>
-        <span className="bs">{total} steps, typed onto all three copies</span>
+    <button
+      className="replay-btn"
+      type="button"
+      aria-label={running ? `Skip to the end of the replay, now at step ${Math.max(1, current)} of ${total}` : `${label}, ${sub}`}
+      aria-describedby={describedBy}
+      onClick={running ? skip : replay}
+    >
+      <span className="box">
+        {running ? <FastForward size="1.1em" weight="light" aria-hidden /> : <Play size="1.1em" weight="light" aria-hidden />}
+      </span>
+      <span aria-hidden="true">
+        <span className="bl">{label}</span>
+        <span className="bs">{sub}</span>
       </span>
     </button>
   );

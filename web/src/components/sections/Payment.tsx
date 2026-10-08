@@ -4,16 +4,12 @@ import { addressUrl, dollars, ordinal, pad2, short, txUrl, usdc } from "@/lib/fo
 import { askedPrice, exceeded } from "@/lib/view";
 import { ExtLink } from "../ExtLink";
 
-const DAY_S = 86_400;
-const per = (seconds: number) => (seconds === DAY_S ? "a day" : `every ${seconds.toLocaleString("en-US")} s`);
-
-/** Three perforated receipts, one voided, and the Base Account's budget book. */
+/** Three perforated receipts, one voided, and the Base Account's allowance book. */
 export function Payment({ payments }: { payments: Payments }) {
   const perCall = usdc(payments.usdcPerCall);
   const paidCalls = payments.calls.filter((c) => c.paid);
   const { budget } = payments;
   const allowance = BigInt(budget.permission.allowance);
-  const period = per(budget.permission.period);
   const refusedDraw = budget.overBudgetDraw ? exceeded(budget.overBudgetDraw.reason) : undefined;
   const received = BigInt(payments.sellerUsdcAfter) - BigInt(payments.sellerUsdcBefore);
 
@@ -39,8 +35,8 @@ export function Payment({ payments }: { payments: Payments }) {
               <span className="lbl">Paid from</span>
               <ExtLink href={addressUrl(budget.baseAccount)}>Base Account {short(budget.baseAccount)}</ExtLink>
               <span className="lbl note">
-                Spend Permission of {usdc(allowance)} {period}
-                {budget.overBudgetDraw ? `; a ${ordinal(budget.draws.length + 1)} draw was refused` : ""}
+                Daily allowance of {usdc(allowance)}
+                {budget.overBudgetDraw ? `; Base rejected a ${ordinal(budget.draws.length + 1)} draw` : ""}
               </span>
             </div>
           </div>
@@ -90,19 +86,19 @@ export function Payment({ payments }: { payments: Payments }) {
         <div className="doc-top">
           <p className="doc-title">
             <Wallet size="1.1em" weight="light" aria-hidden />
-            Budget book
+            Allowance book
           </p>
         </div>
         <div className="pb-cap">
-          <span className="lbl">Daily Spend Permission</span>
+          <span className="lbl">Daily allowance (Spend Permission)</span>
           <span className="ty-big">{usdc(allowance)}</span>
           <span className="lbl">Granted to</span>
-          <span className="ty">the buyer agent, which holds no USDC of its own</span>
+          <span className="ty">the buyer agent, which held no USDC of its own before the first draw</span>
           <span className="lbl">Approval</span>
           <ExtLink href={txUrl(budget.approveTx)}>Permission {short(budget.approveTx)}</ExtLink>
         </div>
         <table className="pb-led">
-          <caption className="sr">Draws from the Base Account against the {period} Spend Permission</caption>
+          <caption className="sr">Draws from the Base Account against the daily allowance</caption>
           <thead>
             <tr>
               <th scope="col">Draw</th>
@@ -134,7 +130,7 @@ export function Payment({ payments }: { payments: Payments }) {
                   <span className="rejnote">
                     <code>{budget.overBudgetDraw.reason}</code>
                     {refusedDraw &&
-                      `: ${usdc(refusedDraw.wanted)} would pass the ${usdc(refusedDraw.allowed)} permission (USDC atomic units, 6 decimals).`}{" "}
+                      `: in atomic USDC (6 decimals), a ${ordinal(budget.draws.length + 1)} draw would bring today's total to ${usdc(refusedDraw.wanted)}, over the ${usdc(refusedDraw.allowed)} allowance.`}{" "}
                     Checked without a transaction.
                   </span>
                 </td>

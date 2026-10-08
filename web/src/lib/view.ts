@@ -21,18 +21,16 @@ export interface SealedSide {
 export interface OrderRound {
   n: number;
   slot: string;
-  crossed: boolean;
+  meet: boolean;
   buyer: SealedSide;
   seller: SealedSide;
 }
 
-export type DetailPart = string | { code: string };
-
 export interface Step {
   n: number;
   slot: string;
+  /** One line: what happened at this step. */
   title: string;
-  detail: DetailPart[];
   links: TxRef[];
 }
 
@@ -46,14 +44,17 @@ export interface OrderView {
   admitted: { buyer: boolean; seller: boolean };
   rounds: OrderRound[];
   settle: { line: string; price: string; tx: TxRef };
-  budget: { line: string; tx: TxRef };
+  allowance: { line: string; tx: TxRef };
   paid: string;
   refused?: string;
   overBudget?: string;
-  /** "Fourth draw": the draw Base refused, counted after the ones it allowed. */
+  /** "Fourth draw": the draw Base rejected, counted after the ones it allowed. */
   nextDraw: string;
   steps: Step[];
 }
+
+/** The referee's one bit, in words. */
+export const meetLabel = (meet: boolean) => (meet ? "Offers meet" : "Offers apart");
 
 /** "asks 84000 atomic USDC per call; …" as the asked price in dollars. */
 export const askedPrice = (refusal: string) => {
@@ -72,6 +73,8 @@ const sealed = (price: string, commitment: string, commitTx: string): SealedSide
   hash: { label: short(commitment), href: txUrl(commitTx) },
 });
 
+const capital = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
 export function orderView(deal: Run, payments: Payments, admitted: OrderView["admitted"]): OrderView {
   const last = deal.rounds[deal.rounds.length - 1];
   const paidCalls = payments.calls.filter((c) => c.paid);
@@ -81,12 +84,13 @@ export function orderView(deal: Run, payments: Payments, admitted: OrderView["ad
   const perCall = usdc(payments.usdcPerCall);
   const allowance = usdc(payments.budget.permission.allowance);
   const over = payments.budget.overBudgetDraw?.reason;
+  const overAmounts = over ? exceeded(over) : undefined;
   const nextDraw = ordinal(payments.budget.draws.length + 1);
 
   const rounds: OrderRound[] = deal.rounds.map((r) => ({
     n: r.round,
     slot: `r${r.round}`,
-    crossed: r.crossed,
+    meet: r.crossed,
     buyer: sealed(r.buyer.offer, r.buyer.commitment, r.buyer.commitTx),
     seller: sealed(r.seller.offer, r.seller.commitment, r.seller.commitTx),
   }));
@@ -94,20 +98,12 @@ export function orderView(deal: Run, payments: Payments, admitted: OrderView["ad
   const steps: Omit<Step, "n">[] = [
     {
       slot: "adm",
-      title: "Both agents admitted",
-      detail: [
-        `ERC-8004 agents #${deal.agents.buyer.agentId} and #${deal.agents.seller.agentId} clear the reputation gate, and negotiation #${deal.negotiationId} opens on Base Sepolia.`,
-      ],
+      title: `Agents #${deal.agents.buyer.agentId} and #${deal.agents.seller.agentId} admitted, negotiation #${deal.negotiationId} opened`,
       links: [{ label: `Open ${short(deal.createTx)}`, href: txUrl(deal.createTx) }],
     },
     ...deal.rounds.map((r) => ({
       slot: `r${r.round}`,
-      title: r.crossed ? `Round ${r.round}: a deal is possible` : `Round ${r.round}: no deal yet`,
-      detail: [
-        r.crossed
-          ? "Both agents lock a sealed offer on Base. The referee says the buyer now offers at least what the seller asks."
-          : "Both agents lock a sealed offer on Base. The referee says the offers do not meet, and neither agent learns the other's number.",
-      ],
+      title: `Round ${r.round}: both offers sealed, ${meetLabel(r.crossed).toLowerCase()}`,
       links: [
         { label: `Buyer ${short(r.buyer.commitTx)}`, href: txUrl(r.buyer.commitTx) },
         { label: `Seller ${short(r.seller.commitTx)}`, href: txUrl(r.seller.commitTx) },
@@ -115,52 +111,23 @@ export function orderView(deal: Run, payments: Payments, admitted: OrderView["ad
     })),
     {
       slot: "set",
-      title: `Settled at ${dollars(deal.settledPrice!)} per 1,000 calls`,
-      detail: [
-        `One transaction opens both final offers, ${dollars(last.buyer.offer)} and ${dollars(last.seller.offer)}, and settles halfway. These are the first offers anyone outside the referee can read.`,
-      ],
+      title: `Settled at ${dollars(deal.settledPrice!)} per 1,000 calls; ${dollars(last.buyer.offer)} and ${dollars(last.seller.offer)} opened`,
       links: [{ label: `Settle ${short(deal.settleTx!)}`, href: txUrl(deal.settleTx!) }],
     },
     {
-      slot: "budget",
-      title: `A budget of ${allowance} a day`,
-      detail: [
-        "The principal's USDC sits in a Base Account. It grants the buyer agent a Spend Permission, and the agent holds no USDC of its own.",
-      ],
+      slot: "allowance",
+      title: `A daily allowance of ${allowance}, granted from the owner's Base Account`,
       links: [{ label: `Permission ${short(payments.budget.approveTx)}`, href: txUrl(payments.budget.approveTx) }],
     },
     {
       slot: "paid",
-      title: `Paid ${paidCalls.length} calls at ${perCall} in USDC`,
-      detail: [
-        "Before each call the agent draws its price from the Base Account, then pays the seller's API over x402 at the settled price.",
-      ],
+      title: `Paid ${paidCalls.length} calls at ${perCall} in USDC each, over x402`,
       links: paidCalls.map((c, i) => ({ label: `Payment ${i + 1}`, href: txUrl(c.transaction!) })),
     },
     ...(asked
-      ? [
-          {
-            slot: "refused",
-            title: `Refused a call at ${asked}`,
-            detail: ["The seller asked for more than the deal. The buyer refused before signing anything, so no money moved."],
-            links: [],
-          },
-        ]
+      ? [{ slot: "refused", title: `The buyer refused a call at ${asked}, before signing`, links: [] }]
       : []),
-    ...(over
-      ? [
-          {
-            slot: "over",
-            title: `Base refused a ${nextDraw} draw`,
-            detail: [
-              "Drawing one more call would pass the daily budget. The SpendPermissionManager rejects it: ",
-              { code: over },
-              ", checked without a transaction.",
-            ],
-            links: [],
-          },
-        ]
-      : []),
+    ...(over ? [{ slot: "over", title: `Base rejected a ${nextDraw} draw over the allowance`, links: [] }] : []),
   ];
 
   return {
@@ -177,14 +144,18 @@ export function orderView(deal: Run, payments: Payments, admitted: OrderView["ad
       price: dollars(deal.settledPrice!),
       tx: { label: short(deal.settleTx!), href: txUrl(deal.settleTx!) },
     },
-    budget: {
-      line: `${allowance} USDC a day in the Base Account`,
+    allowance: {
+      line: `${allowance} in USDC a day`,
       tx: { label: short(payments.budget.approveTx), href: txUrl(payments.budget.approveTx) },
     },
-    paid: `${paidCalls.length} calls at ${perCall} USDC each, over x402`,
+    paid: `${paidCalls.length} calls at ${perCall} in USDC each, over x402`,
     refused: asked ? `${refusals.length} ${refusals.length === 1 ? "call" : "calls"} at ${asked}, before signing` : undefined,
-    overBudget: over ? `Rejected: ${over}` : undefined,
-    nextDraw: `${nextDraw.charAt(0).toUpperCase()}${nextDraw.slice(1)} draw`,
+    overBudget: overAmounts
+      ? `Rejected by Base: ${usdc(overAmounts.wanted)} today would pass the ${usdc(overAmounts.allowed)} allowance`
+      : over
+        ? `Rejected by Base: ${over}`
+        : undefined,
+    nextDraw: `${capital(nextDraw)} draw`,
     steps: steps.map((s, i) => ({ ...s, n: i + 1 })),
   };
 }

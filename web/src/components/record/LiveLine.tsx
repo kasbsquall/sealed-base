@@ -18,7 +18,7 @@ export function LiveLine({ live }: { live: Live | undefined }) {
       ) : live.state === "error" ? (
         <>
           <Warning size="1.1em" weight="light" aria-hidden />
-          <span>Could not reach the Base Sepolia RPC just now. The transaction links above still open on Basescan.</span>
+          <span>Could not read the contract just now.</span>
         </>
       ) : (
         <>

@@ -7,17 +7,17 @@ import { ReplayProvider } from "@/components/replay/ReplayProvider";
 import { TriplicateSet } from "@/components/replay/TriplicateSet";
 import { Payment } from "@/components/sections/Payment";
 import { Business, Limits, Mechanism, Verify } from "@/components/sections/Fine";
-import { loadDeployment, loadPayments, loadRuns } from "@/lib/data";
-import { addressUrl, dollars, short } from "@/lib/format";
+import { loadDeployment, loadPayments, loadRuns, loadSeparated } from "@/lib/data";
+import { addressUrl, short } from "@/lib/format";
 import { orderView } from "@/lib/view";
 
 const REPO = "https://github.com/kasbsquall/sealed-base";
 const REPO_NAME = "kasbsquall/sealed-base";
 
 const NAV = [
-  { href: "#replay", label: "Replay", always: false },
-  { href: "#record", label: "The record", always: false },
   { href: "#payment", label: "Payment", always: false },
+  { href: "#replay", label: "Order log", always: false },
+  { href: "#record", label: "The record", always: false },
   { href: "#mechanism", label: "How it runs", always: false },
   { href: "#verify", label: "Check it yourself", always: true },
   { href: "#limits", label: "Limits", always: false },
@@ -42,10 +42,16 @@ export default function Page() {
     seller: deployment.admission.seller.clears,
   });
   const commits = runs.reduce((n, r) => n + r.rounds.length * 2, 0);
+  const opened = runs.filter((r) => r.outcome === "settled");
+  const ids = runs.map((r) => `#${r.negotiationId}`);
   const contracts = Object.keys(deployment.contracts).length;
   const strip: StripField[] = [
-    { label: "Negotiations", figure: String(runs.length), note: "shown here, both run on Base Sepolia: one deal, one expiry" },
-    { label: "Sealed offers", figure: String(commits), note: "recorded on Base, unreadable unless a deal is struck" },
+    { label: "Negotiations", figure: String(runs.length), note: "shown here, both ran on Base Sepolia: one deal, one expiry" },
+    {
+      label: "Sealed offers",
+      figure: String(commits),
+      note: `hashes on Base; only ${opened.map((r) => `#${r.negotiationId}`).join(" and ")}'s ${opened.length * 2} final offers were ever opened`,
+    },
     {
       label: "Agents",
       figure: `#${deployment.agents.buyer.agentId}, #${deployment.agents.seller.agentId}`,
@@ -56,6 +62,9 @@ export default function Page() {
 
   return (
     <>
+      <a className="skip" href="#order">
+        Skip to the order
+      </a>
       <nav className="desk-nav" aria-label="Main">
         <a className="brand" href="#top">
           <SealMark ground="var(--desk)" />
@@ -72,7 +81,8 @@ export default function Page() {
           <li>
             <a className="nl" href={REPO} target="_blank" rel="noreferrer">
               <GithubLogo size="1.1em" weight="light" aria-hidden />
-              Repository<span className="sr"> (opens in a new tab)</span>
+              <span className="nl-label">Repository</span>
+              <span className="sr"> (opens in a new tab)</span>
             </a>
           </li>
         </ul>
@@ -80,14 +90,21 @@ export default function Page() {
 
       <main id="top">
         <ReplayProvider steps={order.steps.map(({ n, slot, title }) => ({ n, slot, title }))}>
-          <section className="hero" aria-label={`Negotiation order No. ${order.id}`}>
+          <section className="hero" id="order" tabIndex={-1} aria-label={`Negotiation order No. ${order.id}`}>
             <TriplicateSet order={order} />
           </section>
 
+          <section className="sec" id="payment" aria-labelledby="payment-h">
+            <SectionHead id="payment-h" title="Then the buyer paid the price it agreed to">
+              Per call over x402, in USDC from its owner&apos;s Base Account. Before signing, the buyer checks price and
+              payee against deal #{payments.negotiationId}.
+            </SectionHead>
+            <Payment payments={payments} />
+          </section>
+
           <section className="sec" id="replay" aria-labelledby="replay-h">
-            <SectionHead id="replay-h" title={`Negotiation #${order.id}, from first offer to payment`}>
-              Every step below happened on Base Sepolia. Each one links to its transaction, so you can open the record
-              behind it.
+            <SectionHead id="replay-h" title={`Negotiation #${order.id}, step by step`}>
+              Every step happened on Base Sepolia, and each links to its transaction.
             </SectionHead>
             <OrderLog id={order.id} steps={order.steps} strip={strip} />
           </section>
@@ -95,20 +112,9 @@ export default function Page() {
 
         <section className="sec" id="record" aria-labelledby="record-h">
           <SectionHead id="record-h" title="Two negotiations, round by round">
-            The same rounds, seen two ways. Switch between what each agent knew and what Base recorded for the same
-            moves.
+            Negotiations {ids.join(" and ")}. Switch between what each agent knew and what Base recorded.
           </SectionHead>
           <Record runs={runs} />
-        </section>
-
-        <section className="sec" id="payment" aria-labelledby="payment-h">
-          <SectionHead id="payment-h" title="Then the buyer paid the price it agreed to">
-            Negotiation #{payments.negotiationId} settled at {dollars(payments.settledPrice)} per 1,000 calls. The buyer
-            agent then paid the seller&apos;s API per call over x402, in USDC on Base Sepolia, drawing each call&apos;s
-            price from its principal&apos;s Base Account under a daily Spend Permission. Before signing, it checks the
-            price and the payee against the settled deal on-chain, and refuses anything else.
-          </SectionHead>
-          <Payment payments={payments} />
         </section>
 
         <section className="sec" id="mechanism" aria-labelledby="mech-h">
@@ -120,8 +126,8 @@ export default function Page() {
 
         <section className="sec" id="verify" aria-labelledby="verify-h">
           <SectionHead id="verify-h" title="Check it yourself">
-            Every link opens Base Sepolia on Basescan or Sourcify, and the script reads the chain itself. You need no
-            wallet.
+            Every link opens Base Sepolia on Basescan or Sourcify, and the two scripts read the chain itself. You need
+            no wallet.
           </SectionHead>
           <Verify runs={runs} deployment={deployment} payments={payments} />
         </section>
@@ -135,9 +141,9 @@ export default function Page() {
 
         <section className="sec" id="limits" aria-labelledby="limits-h">
           <SectionHead id="limits-h" title="What this demo does not claim">
-            Four limits of this demo, printed on the back of the order where terms belong.
+            Four limits of this demo.
           </SectionHead>
-          <Limits deployment={deployment} />
+          <Limits deployment={deployment} separated={loadSeparated()} />
         </section>
       </main>
 
