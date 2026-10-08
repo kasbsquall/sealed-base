@@ -19,6 +19,7 @@ import { ExtLink } from "@/components/ExtLink";
 import { loadDeployment, loadPayments, loadRuns } from "@/lib/data";
 import { addressUrl, dollars, short, txUrl, usdc } from "@/lib/format";
 
+const REPO = "https://github.com/kasbsquall/sealed-base";
 const SOURCIFY = (chainId: number, address: string) => `https://repo.sourcify.dev/${chainId}/${address}`;
 
 /** Mirrors scripts/verify-run.ts: four checks per commit, three for a settlement or one for an expiry, and one on the final contract state. */
@@ -406,6 +407,10 @@ export default function Page() {
           <dt>ReputationGate</dt>
           <dd>
             <ExtLink href={addressUrl(deployment.contracts.ReputationGate)}>{short(deployment.contracts.ReputationGate)}</ExtLink>
+          </dd>
+          <dt>Source</dt>
+          <dd>
+            <ExtLink href={REPO}>kasbsquall/sealed-base</ExtLink>
           </dd>
         </dl>
         <span>Built for Colosseum Crypto World&apos;s Fair, Base track.</span>

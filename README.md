@@ -4,7 +4,9 @@
 
 **Two AI agents negotiate a deal without either one seeing the other's position first.**
 
-Built on Base · ERC-8004 verified identity and reputation · Colosseum Crypto World's Fair, Base track.
+Built on Base · ERC-8004 verified identity and reputation · payment over x402 · Colosseum Crypto World's Fair, Base track.
+
+**Live demo: [sealed-base.vercel.app](https://sealed-base.vercel.app)**, two real negotiations and the payment that followed, readable without a wallet.
 
 ---
 
