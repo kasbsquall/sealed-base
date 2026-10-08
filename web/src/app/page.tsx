@@ -1,5 +1,7 @@
 import {
+  ArrowDown,
   ArrowRight,
+  Briefcase,
   Coins,
   Eye,
   FileCode,
@@ -12,8 +14,11 @@ import {
   Receipt,
   Scales,
   Signature,
+  Storefront,
+  Target,
 } from "@phosphor-icons/react/dist/ssr";
 import { Ledger } from "@/components/Ledger";
+import { Replay, type ReplayStep } from "@/components/Replay";
 import { CopyCommand } from "@/components/CopyCommand";
 import { ExtLink } from "@/components/ExtLink";
 import { loadDeployment, loadPayments, loadRuns } from "@/lib/data";
@@ -56,6 +61,49 @@ export default function Page() {
   const payments = loadPayments();
   const paidCalls = payments.calls.filter((c) => c.paid);
   const firstPayment = paidCalls[0];
+  const refused = payments.calls.find((c) => c.refusal);
+  const lastRound = deal.rounds[deal.rounds.length - 1];
+  const replaySteps: ReplayStep[] = [
+    {
+      kind: "admit",
+      title: "Both agents admitted",
+      detail: `ERC-8004 agents #${deal.agents.buyer.agentId} and #${deal.agents.seller.agentId} clear the reputation gate, and negotiation #${deal.negotiationId} opens on Base Sepolia.`,
+      links: [{ label: `Open ${short(deal.createTx)}`, href: txUrl(deal.createTx) }],
+    },
+    ...deal.rounds.map((r): ReplayStep => ({
+      kind: r.crossed ? "cross" : "miss",
+      title: r.crossed ? `Round ${r.round}: a deal is possible` : `Round ${r.round}: no deal yet`,
+      detail: r.crossed
+        ? "Both agents lock a sealed offer on Base. The referee says the buyer now offers at least what the seller asks."
+        : "Both agents lock a sealed offer on Base. The referee says the offers do not meet, and neither agent learns the other's number.",
+      links: [
+        { label: `Buyer ${short(r.buyer.commitTx)}`, href: txUrl(r.buyer.commitTx) },
+        { label: `Seller ${short(r.seller.commitTx)}`, href: txUrl(r.seller.commitTx) },
+      ],
+    })),
+    {
+      kind: "settle",
+      title: `Settled at ${dollars(deal.settledPrice!)} per 1,000 calls`,
+      detail: `One transaction opens both final offers, ${dollars(lastRound.buyer.offer)} and ${dollars(lastRound.seller.offer)}, and settles halfway. These are the first offers anyone outside the referee can read.`,
+      links: [{ label: `Settle ${short(deal.settleTx!)}`, href: txUrl(deal.settleTx!) }],
+    },
+    {
+      kind: "pay",
+      title: `Paid ${paidCalls.length} calls at ${usdc(payments.usdcPerCall)} in USDC`,
+      detail: "The buyer pays the seller's API per call over x402, at the settled price read from the contract.",
+      links: paidCalls.map((c, i) => ({ label: `Payment ${i + 1}`, href: txUrl(c.transaction!) })),
+    },
+    ...(refused
+      ? [
+          {
+            kind: "refuse" as const,
+            title: `Refused a call at ${refusalText(refused.refusal!, payments.usdcPerCall).match(/\$[0-9.]+/)?.[0] ?? "another price"}`,
+            detail: "The seller asked for more than the deal. The buyer refused before signing anything, so no money moved.",
+            links: [],
+          },
+        ]
+      : []),
+  ];
 
   return (
     <>
@@ -82,6 +130,14 @@ export default function Page() {
             public. Below are two real negotiations between AI agents on Base Sepolia, a test network, and the payment
             that followed.
           </p>
+          <div className="hero-actions rise" style={{ ["--b" as string]: 3 }}>
+            <a className="action primary" href="#replay-title">
+              <ArrowDown size={16} weight="light" aria-hidden /> Watch the deal replay
+            </a>
+            <a className="action" href="#verify-title">
+              Check it yourself
+            </a>
+          </div>
 
           <dl className="register rise" style={{ ["--b" as string]: 3 }}>
             <div>
@@ -123,6 +179,20 @@ export default function Page() {
               </dd>
             </div>
           </dl>
+        </section>
+
+        <section className="wrap section" aria-labelledby="replay-title">
+          <div className="section-head">
+            <div>
+              <div className="eyebrow">Replay</div>
+              <h2 id="replay-title">Negotiation #{deal.negotiationId}, from first offer to payment</h2>
+            </div>
+            <p>
+              Every step below happened on Base Sepolia. Each one links to its transaction, so you can open the record
+              behind it.
+            </p>
+          </div>
+          <Replay steps={replaySteps} />
         </section>
 
         <section className="wrap section" aria-labelledby="ledger-title">
@@ -344,6 +414,61 @@ export default function Page() {
               </div>
             </li>
           </ol>
+        </section>
+
+        <section className="wrap section" aria-labelledby="business-title">
+          <div className="section-head">
+            <div>
+              <div className="eyebrow">Business</div>
+              <h2 id="business-title">Who pays for Sealed</h2>
+            </div>
+            <p>The plan after the event. None of this is charged in the demo.</p>
+          </div>
+          <div className="business">
+            <div className="business-figure">
+              <span className="figure">0.25%</span>
+              <span className="note">of the value paid at a price settled through Sealed, charged to the seller</span>
+            </div>
+            <ul className="limits">
+              <li>
+                <Storefront size={22} weight="light" className="icon" />
+                <div>
+                  <h3>First customers</h3>
+                  <p>
+                    API sellers that already charge per call over x402. Sealed lets them sell volume to buying agents at a
+                    negotiated price without publishing a price list the other side can game.
+                  </p>
+                </div>
+              </li>
+              <li>
+                <Target size={22} weight="light" className="icon" />
+                <div>
+                  <h3>Why they pay</h3>
+                  <p>
+                    A buyer agent that cannot be squeezed is willing to commit to volume. At 1,000,000 calls a month at the
+                    demo&apos;s $0.042, the seller earns $42,000 and Sealed $105.
+                  </p>
+                </div>
+              </li>
+              <li>
+                <Briefcase size={22} weight="light" className="icon" />
+                <div>
+                  <h3>Next, in order</h3>
+                  <p>
+                    Move the referee into an attested enclave, code the fee into settlement, deploy on Base mainnet, and
+                    run a pilot with one x402 seller.
+                  </p>
+                </div>
+              </li>
+              <li>
+                <IdentificationBadge size={22} weight="light" className="icon" />
+                <div>
+                  <h3>Team</h3>
+                  <p>The founder will build Sealed full-time after the event.</p>
+                </div>
+              </li>
+            </ul>
+          </div>
         </section>
 
         <section className="wrap section" aria-labelledby="limits-title">

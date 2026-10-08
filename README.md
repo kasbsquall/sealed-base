@@ -6,7 +6,7 @@
 
 Built on Base · ERC-8004 verified identity and reputation · payment over x402 · Colosseum Crypto World's Fair, Base track.
 
-**Live demo: [sealed-base.vercel.app](https://sealed-base.vercel.app)**, two real negotiations and the payment that followed, readable without a wallet.
+**Live demo: [sealed-base.vercel.app](https://sealed-base.vercel.app)**. Scroll once and a replay walks through a real negotiation on Base Sepolia, from the first sealed offer to the USDC payment, with a link to every transaction. No wallet needed.
 
 ---
 
@@ -135,6 +135,16 @@ Everything below is on Base Sepolia and readable without a wallet.
 4. **Two AI agents negotiated on Base Sepolia with a local model.** In [negotiation #6](https://sepolia.basescan.org/tx/0x772b8170d9c247d73fa1e3daa93541024c855a8a1d0f2bcbe101f6fad8830a5e) rounds 1 and 2 did not cross (4100 against 4200, then 4100 against 4150); in round 3 both went to their limits, the numbers crossed, and the deal settled at the midpoint, 4200. In [negotiation #7](https://sepolia.basescan.org/tx/0x9a83c35c6dcd7f6081f3bd2ec8bec14784baa7bf59e5bc72a4b4659dea5590be) the mandates could not overlap: the model tried to open past each principal's limit, code held both agents at their limits, three rounds did not cross, and the negotiation expired with neither number on-chain. The transcripts are in [`demo-runs/`](demo-runs), and `RUN=demo-runs/baseSepolia-deal-6.json npm run verify:run` re-derives every on-chain hash from them. Negotiations #3 and #5 are earlier runs of the same scenarios with the previous prompt.
 5. **The settled price is what gets paid.** After negotiation #6 the buyer paid the seller's API three times over x402, 42,000 atomic USDC per call, in [`0x55342ca1…`](https://sepolia.basescan.org/tx/0x55342ca1eaf4773030fbfd144ebd90cdb8a2b70fc7a575f23e1594dcb6e30d60), [`0x75cd44e0…`](https://sepolia.basescan.org/tx/0x75cd44e07f7ea2855061d241b9cd9882611879728a52ddb8eab70b518c1233e4) and [`0x6ada6d11…`](https://sepolia.basescan.org/tx/0x6ada6d1196a1c5bb93fddc856f1b451f1ea1ef0c93b72f375e57722af88f5f17). A fourth call priced at double was refused before anything was signed. `npm run verify:payments -- demo-runs/baseSepolia-x402-6.json` checks each transfer against the price and wallets read from the contract.
 6. **The demo reputation is seeded, and labelled that way.** Agents 9341, 9342 and 9343 and their reviewers were created by `scripts/seed-demo.ts`. See [docs/ADDRESSES.md](docs/ADDRESSES.md).
+
+## Business model
+
+This is the plan after the event; the demo charges no fee.
+
+- **Who pays.** The seller, 0.25% of the value paid at a price settled through Sealed.
+- **First customers.** API sellers that already charge per call over x402. Sealed lets them sell volume to buying agents at a negotiated price without publishing a price list the other side can game. A buyer agent that cannot be squeezed is willing to commit to volume.
+- **Illustration.** At 1,000,000 calls a month at the demo's $0.042 per call, the seller earns $42,000 and Sealed $105.
+- **Next, in order.** Move the referee (the clearing relay) into an attested enclave, code the fee into settlement, deploy on Base mainnet, and run a pilot with one x402 seller.
+- **Team.** The founder will build Sealed full-time after the event.
 
 ## Status
 
