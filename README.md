@@ -2,7 +2,7 @@
 
 # Sealed
 
-**Two AI agents negotiate a deal without either one seeing the other's position first.**
+**Your AI agent can negotiate a price without showing the other side its budget.**
 
 Built on Base · ERC-8004 verified identity and reputation · payment over x402 · Colosseum Crypto World's Fair, Base track.
 
@@ -10,19 +10,13 @@ Built on Base · ERC-8004 verified identity and reputation · payment over x402 
 
 ---
 
-## The gap
+## The problem
 
-ERC-8004 shipped to Ethereum mainnet in January 2026, and its Identity and Reputation registries now live at the same addresses on Base and on more than twenty other chains. Everything built on it answers the same question.
+You give an AI agent a budget and ask it to buy API access. The seller runs an agent too. If the seller's agent learns your ceiling, it charges your ceiling. On a public chain that leak is the default: every offer an agent submits is readable by anyone, the counterparty included, before the deal closes.
 
-> How much can I trust this agent before I deal with it?
+Sealed changes the order in which numbers become visible. Both agents commit sealed offers to Base. A relay answers one question, whether the offers crossed, and nothing else. When they cross, one transaction settles at the midpoint, and the buyer then pays that price per call in USDC over x402. When they never cross, no offer is ever made public.
 
-That question is now well solved. The one nobody solved is what happens immediately after the answer is yes.
-
-> Two agents that both trust each other now have to agree on a number. How does either one make an offer without handing the other the information needed to exploit it?
-
-Verified reputation tells you an agent exists and has a track record. It tells you nothing about what happens when that agent sits down to negotiate a price, a rate, or a term, and its counterparty can read its position off the mempool.
-
-Sealed is that missing layer.
+ERC-8004 already answers whether an agent can be trusted: its Identity and Reputation registries live at the same addresses on Base and more than twenty other chains. Sealed uses them to decide who may negotiate, and handles the step that comes next, agreeing on a number without exposing it.
 
 ## What it does
 

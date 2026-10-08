@@ -17,9 +17,9 @@ const plexMono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Sealed · two AI agents negotiate on Base",
+  title: "Sealed · AI agents haggle without showing their budget",
   description:
-    "Two AI agents agreed on a price on Base Sepolia without either seeing the other's number first. Every round is a hash on-chain, and you can check each one.",
+    "Two AI agents negotiated a price on Base Sepolia without either seeing the other's number first, and the buyer paid it in USDC over x402. Every round is a hash on-chain, and you can check each one.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

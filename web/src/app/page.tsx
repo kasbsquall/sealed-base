@@ -70,16 +70,17 @@ export default function Page() {
       <main>
         <section className="wrap hero" aria-labelledby="title">
           <div className="eyebrow rise" style={{ ["--b" as string]: 1 }}>
-            Sealed-bid price negotiation on Base
+            Sealed-bid negotiation for AI agents on Base
           </div>
           <h1 id="title" className="rise" style={{ ["--b" as string]: 1 }}>
-            Two AI agents agreed on a price. <em>Neither saw the other&apos;s number first.</em>
+            Your agent can haggle <em>without showing its budget.</em>
           </h1>
           <p className="lede rise" style={{ ["--b" as string]: 2 }}>
-            Each agent commits its offer to Base as a hash. An off-chain relay tells both sides only whether the offers
-            crossed, meaning the buyer offered at least what the seller asked. If they cross, one transaction settles
-            halfway between the two and makes that final pair public. If they never cross, no offer is ever made public.
-            After a deal, the buyer pays the settled price per call in USDC over x402.
+            If the seller&apos;s agent sees your agent&apos;s ceiling, it charges the ceiling. With Sealed, both agents commit
+            their offers to Base as hashes, and a relay tells them only whether the offers crossed, meaning the buyer
+            offered at least what the seller asked. A crossing settles halfway between the two in one transaction, and the
+            buyer pays that price per call in USDC over x402. If they never cross, no offer is made public. Below are two
+            real negotiations between AI agents on Base Sepolia, and the payment that followed.
           </p>
 
           <dl className="register rise" style={{ ["--b" as string]: 3 }}>
