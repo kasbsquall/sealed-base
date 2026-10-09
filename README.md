@@ -8,6 +8,8 @@ Built on Base · ERC-8004 verified identity and reputation · payment over x402 
 
 **Live demo: [sealed-base.vercel.app](https://sealed-base.vercel.app)**. Scroll once and a replay walks through a real negotiation on Base Sepolia, from the first sealed offer to the USDC payment, with a link to every transaction. No wallet needed.
 
+**Demo video (2:30): [youtu.be/XUt2sqXwPrs](https://youtu.be/XUt2sqXwPrs)**. Live run #9 on Base Sepolia, recorded on 2026-10-08, from the sealed offers to the x402 payment and `verify:run`.
+
 ---
 
 ## The problem
