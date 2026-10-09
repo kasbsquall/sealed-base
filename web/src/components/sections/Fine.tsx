@@ -22,7 +22,7 @@ import {
 } from "@phosphor-icons/react/dist/ssr";
 import type { Icon } from "@phosphor-icons/react";
 import type { Deployment, Payments, Run } from "@/lib/data";
-import { addressUrl, dollars, pad2, short, txUrl, usdc } from "@/lib/format";
+import { addressUrl, dollars, pad2, short, txUrl } from "@/lib/format";
 import { CopyCommand } from "../CopyCommand";
 import { ExtLink } from "../ExtLink";
 
@@ -31,9 +31,9 @@ const SOURCIFY = (chainId: number, address: string) => `https://repo.sourcify.de
 /** Mirrors scripts/verify-run.ts: four checks per commit, three for a settlement or one for an expiry, and one on the final contract state. */
 const verifyChecks = (rounds: number, settled: boolean) => rounds * 2 * 4 + (settled ? 3 : 1) + 1;
 
-/** The planned fee, in basis points of the value paid at a settled price, and the volume used to illustrate it. */
+/** The planned fee, in basis points of the value paid at a settled price, and the settled spend used to illustrate it (atomic USDC). */
 const FEE_BPS = 25n;
-const EXAMPLE_CALLS = 1_000_000n;
+const EXAMPLE_SPEND = 1_000_000n * 1_000_000n;
 
 const money = (atomicUsdc: bigint) => `$${(atomicUsdc / 1_000_000n).toLocaleString("en-US")}`;
 
@@ -232,8 +232,7 @@ export function Verify({ runs, deployment, payments }: { runs: Run[]; deployment
 export function Business({ deal, payments }: { deal: Run; payments: Payments }) {
   const settled = BigInt(deal.settledPrice!);
   const buyerLimit = BigInt(deal.agents.buyer.limit);
-  const sellerEarns = EXAMPLE_CALLS * BigInt(payments.usdcPerCall);
-  const fee = (sellerEarns * FEE_BPS) / 10_000n;
+  const fee = (EXAMPLE_SPEND * FEE_BPS) / 10_000n;
   const feePct = `${(Number(FEE_BPS) / 100).toFixed(2)}%`;
   return (
     <div className="paper paper-y doc">
@@ -266,12 +265,11 @@ export function Business({ deal, payments }: { deal: Run; payments: Payments }) 
               Why they pay
             </h3>
             <p>
-              A buyer agent that cannot be squeezed is willing to commit to volume. In negotiation #{deal.negotiationId}{" "}
+              The bet is that a buyer agent that cannot be squeezed commits to more volume. In negotiation #{deal.negotiationId}{" "}
               the seller would have accepted {dollars(deal.agents.seller.limit)} per 1,000 calls and closed at{" "}
               {dollars(settled)}, while the buyer paid {dollars(buyerLimit - settled)} less than its{" "}
-              {dollars(buyerLimit)} limit. In an example month of {EXAMPLE_CALLS.toLocaleString("en-US")} calls at{" "}
-              {usdc(payments.usdcPerCall)}, the seller earns {money(sellerEarns)} and Sealed{" "}
-              {money(fee)}.
+              {dollars(buyerLimit)} limit. The fee grows with settled volume across every seller: each{" "}
+              {money(EXAMPLE_SPEND)} of API spend settled through Sealed pays {money(fee)}.
             </p>
           </div>
         </div>

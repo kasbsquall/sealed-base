@@ -8,11 +8,15 @@ Built on Base · ERC-8004 verified identity and reputation · payment over x402 
 
 **Live demo: [sealed-base.vercel.app](https://sealed-base.vercel.app)**. Scroll once and a replay walks through a real negotiation on Base Sepolia, from the first sealed offer to the USDC payment, with a link to every transaction. No wallet needed.
 
+**Try one yourself: [sealed-base.vercel.app/#practice](https://sealed-base.vercel.app/#practice)**. Set the buyer's ceiling and the seller's floor, and watch your browser seal each offer with the same hash the deployed contract checks, then settle at the midpoint or expire with nothing published.
+
 **Demo video (2:30): [youtu.be/XUt2sqXwPrs](https://youtu.be/XUt2sqXwPrs)**. Live run #9 on Base Sepolia, recorded on 2026-10-08, from the sealed offers to the x402 payment and `verify:run`.
 
 ---
 
 ## The problem
+
+*x402 is an open standard that lets an agent pay for an API call in USDC inside the HTTP request itself. ERC-8004 is the standard for agent identity and reputation on-chain.*
 
 You give an AI agent a budget and ask it to buy API access. The seller runs an agent too. If the seller's agent learns your ceiling, it charges your ceiling. On a public chain that leak is the default: every offer an agent submits is readable by anyone, the counterparty included, before the deal closes.
 
@@ -171,8 +175,9 @@ Everything below is on Base Sepolia and readable without a wallet.
 This is the plan after the event; the demo charges no fee.
 
 - **Who pays.** The seller, 0.25% of the value paid at a price settled through Sealed.
-- **First customers.** API sellers that already charge per call over x402. Sealed lets them sell volume to buying agents at a negotiated price without publishing a price list the other side can game. A buyer agent that cannot be squeezed is willing to commit to volume.
-- **What the seller gains.** In negotiation #6 the seller would have accepted $41.00 per 1,000 calls and closed at $42.00, while the buyer paid $1.00 less than its $43.00 ceiling. At 1,000,000 calls a month at $0.042 per call, the seller earns $42,000 and Sealed $105. The fee is not implemented in the contracts yet.
+- **First customers.** API sellers that already charge per call over x402. Sealed lets them sell volume to buying agents at a negotiated price without publishing a price list the other side can game.
+- **What the seller gains.** In negotiation #6 the seller would have accepted $41.00 per 1,000 calls and closed at $42.00, while the buyer paid $1.00 less than its $43.00 ceiling. Sealed's bet is that a buyer agent that cannot be squeezed commits to more volume.
+- **How revenue scales.** The fee is charged on settled volume across every seller, so it grows with the number of sellers and the spend that runs through them: each $1,000,000 of API spend settled through Sealed pays $2,500. The fee is not implemented in the contracts yet.
 - **Next, in order.** Move the referee (the clearing relay) into an attested enclave, code the fee into settlement, deploy on Base mainnet, and run a pilot with one x402 seller.
 - **Team.** Kevin Soto Burgos, founder, will build Sealed full-time after the event.
 
