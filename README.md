@@ -180,7 +180,7 @@ This is the plan after the event; the demo charges no fee.
 
 ## Built before and during the hackathon
 
-Sealed started as a prototype on Monad, written for a different hackathon. The first two commits in this repository (2026-09-17) are that prototype: the core contracts, the test suite and a Privy wallet policy, which was removed on 2026-10-08. Everything after them is the Base version built for Colosseum Crypto World's Fair. The history is kept on purpose so anyone can check with `git log` which work came from the Monad prototype.
+Sealed started from an earlier prototype. The first two commits in this repository (2026-09-17) are that prototype: the core contracts, the test suite and a Privy wallet policy, which was removed on 2026-10-08. Everything after them is the Base version built for Colosseum Crypto World's Fair. The history is kept on purpose so anyone can check with `git log` which work came from the prototype.
 
 ## License
 
