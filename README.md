@@ -20,6 +20,16 @@ Sealed changes the order in which numbers become visible. Both agents commit sea
 
 ERC-8004 already answers whether an agent can be trusted: its Identity and Reputation registries live at the same addresses on Base and more than twenty other chains. Sealed uses them to decide who may negotiate, and handles the step that comes next, agreeing on a number without exposing it.
 
+## Who pays, and why now
+
+**Who pays.** The seller, 0.25% of the value paid at a price settled through Sealed. The first customers are API sellers that already charge agents per call over x402: Sealed lets them sell volume at a negotiated price instead of publishing one price list the other side can game. Details in [Business model](#business-model).
+
+**Machines already negotiate prices.** Walmart uses [Pactum](https://www.pymnts.com/news/artificial-intelligence/2023/walmart-finds-75-percent-vendors-prefer-negotiating-with-chatbot/)'s AI to negotiate cost and purchase terms with suppliers; Pactum reports it closes deals with 68% of the suppliers it is used with. Google's [AP2](https://techcrunch.com/2025/09/16/google-launches-new-protocol-for-agent-driven-purchases/) lets a user sign an intent mandate that "enables the agent to search for a specific item and negotiate with sellers", within price limits the user sets. The missing piece is the case where both sides are agents.
+
+**Agents are bad at guarding a limit.** Microsoft's [Magentic Marketplace](https://www.microsoft.com/en-us/research/wp-content/uploads/2025/10/multi-agent-marketplace.pdf) study found severe first-proposal bias in every model it tested, and [arXiv 2512.13063](https://arxiv.org/abs/2512.13063) found that LLM negotiators anchor at the extremes of the deal zone. Keeping the limit out of the conversation, and out of the chain, is safer than asking the model to keep it.
+
+**x402 prices are starting to move, but one side still sets them.** Coinbase's usage-based [`upto`](https://github.com/x402-foundation/x402/blob/main/specs/schemes/upto/scheme_upto.md) scheme and thirdweb's [dynamic pricing](https://blog.thirdweb.com/changelog/dynamic-pricing-for-x402-resources/) let the seller vary the price. Sealed is the version where the buyer's agent has a say without giving its budget away.
+
 ## What it does
 
 Two agents, each with an ERC-8004 identity and reputation on Base, reach an agreement through a contract that never learns either position until both are locked, and never learns either position at all if the deal does not happen.
@@ -54,6 +64,8 @@ So neither the chain, nor the counterparty, nor the model provider ever learns a
 The relay holds no agent key. In [negotiation #8](https://sepolia.basescan.org/tx/0xb0d8a3189a0ffc4a2d48f1c93b27c0416bb3b160515d0764c64b386a335a8136) the buyer agent, the seller agent and the relay ran as three separate processes ([`scripts/run-separated.ts`](scripts/run-separated.ts)): each agent loaded only its own key and limit and ran its own model client, and the relay reached them over HTTP ([`agents/relay/party.ts`](agents/relay/party.ts)). All three ran on the operator's machine, and this README says so.
 
 Timing metadata is public. The mempool shows that an address committed and when. It never shows what.
+
+The one-bit answer also teaches something. A round that does not cross tells the buyer that the seller's number is above its own offer, and tells the seller the reverse, so over several rounds each side narrows the range the other's limit sits in. That is the price of learning whether a deal exists at all; Sealed keeps it to one bit per round and puts nothing on-chain until settlement, and an agent can cap how many rounds it plays.
 
 Two more limits a reviewer will find in the code. `createNegotiation` is permissionless and takes the admission policy (which reviewers count, and how many reviews) from the caller, so the gate proves the integration with ERC-8004 rather than a policy both sides agreed to; storing the policy hash and having the counterparty co-sign it is the fix. And the NatSpec at the top of `SealedNegotiation.sol` describes agents exchanging reveals with each other, which predates the clearing relay; the contract is left unchanged because it is deployed and verified byte for byte, and this README describes the current flow.
 
@@ -117,7 +129,7 @@ npx hardhat test            # runs against the real ERC-8004 registry code
 npm run check:registries    # calls the live registries on Base Sepolia
 ```
 
-The test suite is where the privacy claims are proved rather than asserted. Among the cases:
+The test suite checks the contract and agent properties the privacy claims rest on. What the relay does with the numbers it sees is a trust assumption, described in [What Sealed does not claim](#what-sealed-does-not-claim). Among the cases:
 
 - a committed position leaves no trace of the offer or the salt in any log
 - the same offer in a later round produces an unrelated commitment
