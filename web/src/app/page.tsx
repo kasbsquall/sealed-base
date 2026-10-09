@@ -6,6 +6,7 @@ import { OrderLog, type StripField } from "@/components/replay/OrderLog";
 import { ReplayProvider } from "@/components/replay/ReplayProvider";
 import { TriplicateSet } from "@/components/replay/TriplicateSet";
 import { Payment } from "@/components/sections/Payment";
+import { Practice } from "@/components/sections/Practice";
 import { Business, Limits, Mechanism, Verify } from "@/components/sections/Fine";
 import { loadDeployment, loadPayments, loadRuns, loadSeparated } from "@/lib/data";
 import { addressUrl, short } from "@/lib/format";
@@ -19,6 +20,7 @@ const NAV = [
   { href: "#replay", label: "Order log", always: false },
   { href: "#verify", label: "Check it yourself", always: true },
   { href: "#record", label: "The record", always: false },
+  { href: "#practice", label: "Try it", always: false },
   { href: "#mechanism", label: "How it runs", always: false },
   { href: "#limits", label: "Limits", always: false },
 ];
@@ -123,6 +125,19 @@ export default function Page() {
             Negotiations {ids.join(" and ")}. Switch between what each agent knew and what Base recorded.
           </SectionHead>
           <Record runs={runs} />
+        </section>
+
+        <section className="sec" id="practice" aria-labelledby="practice-h">
+          <SectionHead id="practice-h" title="Try a negotiation yourself">
+            Pick both private limits. Your browser seals every offer with the same hash the deployed contract checks, and
+            you see only what the referee would tell the agents. Nothing leaves this page.
+          </SectionHead>
+          <Practice
+            chainId={deployment.chainId}
+            contract={deployment.contracts.SealedNegotiation}
+            buyerWallet={deployment.agents.buyer.wallet}
+            sellerWallet={deployment.agents.seller.wallet}
+          />
         </section>
 
         <section className="sec" id="mechanism" aria-labelledby="mech-h">

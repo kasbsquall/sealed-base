@@ -2239,6 +2239,165 @@ html:not(.js) .sheet:not(.pos0) .f-body {
 }
 
 /* Reduced motion: every animation and transition off, so the page paints its final state. */
+/* ---------- practice negotiation: the visitor's own copy of the form ---------- */
+.practice {
+  --pp: var(--paper-y);
+}
+.pr-form {
+  padding-bottom: 22px;
+  border-bottom: 2px solid var(--print);
+}
+.pr-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px 40px;
+}
+.pr-input {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1.5px solid var(--print);
+  font-family: var(--f-type);
+  color: var(--carbon);
+  font-size: var(--c-fig);
+  font-weight: 700;
+}
+.pr-input:focus-within {
+  border-bottom-color: var(--carbon);
+}
+.pr-input input {
+  appearance: none;
+  flex: 0 1 7ch;
+  min-width: 0;
+  width: 7ch;
+  border: 0;
+  padding: 2px 0;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  font-variant-numeric: tabular-nums lining-nums slashed-zero;
+}
+.pr-input input:focus {
+  outline: none;
+}
+.pr-input input[aria-invalid="true"] {
+  text-decoration: underline wavy color-mix(in oklab, var(--carbon) 60%, transparent);
+  text-underline-offset: 4px;
+}
+.pr-unit {
+  font-family: var(--f-disp);
+  font-weight: 500;
+  font-size: var(--a-s);
+  color: var(--print-text);
+}
+.pr-err {
+  margin-top: 6px;
+  font-size: var(--a-s);
+  color: var(--carbon);
+}
+.pr-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+.pr-chip {
+  appearance: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 10px;
+  padding: 7px 12px;
+  border: 1.5px solid var(--line);
+  background: transparent;
+  color: var(--print-deep);
+  font-family: var(--f-disp);
+  font-weight: 600;
+  font-size: var(--a-s);
+  transition: transform 140ms var(--ease), border-color 160ms var(--ease);
+}
+.pr-chip .ty {
+  font-size: var(--c-s);
+}
+.pr-chip:hover {
+  border-color: var(--print);
+}
+.pr-chip:active {
+  transform: scale(0.97);
+}
+.pr-chip:focus-visible {
+  outline: 2px solid var(--carbon);
+  outline-offset: 2px;
+}
+.pr-chip[aria-pressed="true"] {
+  border-color: var(--carbon);
+  color: var(--carbon);
+}
+.practice .replay-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.pr-rule {
+  flex: 1 1 280px;
+  max-width: 56ch;
+  font-size: var(--a-s);
+  line-height: 1.5;
+  color: var(--print-text);
+}
+.pr-out {
+  padding-top: 8px;
+}
+.pr-out:focus {
+  outline: none;
+}
+.pr-empty {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 26px 0 8px;
+  font-size: var(--a-m);
+  color: var(--print-text);
+}
+.pr-row {
+  animation: rise 240ms var(--ease) both;
+}
+.pr-off {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.pr-hash {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.pr-done {
+  animation: rise 260ms var(--ease) both;
+}
+.pr-done p:not(.big-line) {
+  max-width: 64ch;
+}
+.pr-nojs {
+  font-family: var(--f-type);
+  font-size: var(--c-s);
+  color: var(--carbon);
+}
+@media (max-width: 640px) {
+  .pr-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pr-form {
+    border-bottom: 0;
+    padding-bottom: 8px;
+  }
+  .practice .replay-btn {
+    min-width: 0;
+    width: 100%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
